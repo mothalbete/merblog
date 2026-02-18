@@ -25,3 +25,21 @@
     </div>
 
 </div>
+
+<script>
+    function openPerfilModal() {
+        document.getElementById("modalPerfil").style.display = "flex";
+    }
+
+    function closePerfilModal() {
+        document.getElementById("modalPerfil").style.display = "none";
+    }
+
+    // Cerrar modal haciendo clic fuera
+    window.addEventListener("click", function (e) {
+        var modal = document.getElementById("modalPerfil");
+        if (e.target === modal) {
+            closePerfilModal();
+        }
+    });
+</script>

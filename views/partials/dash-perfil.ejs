@@ -2,17 +2,28 @@
 
     <!-- MENSAJE DE ERROR DE PERFIL -->
     <% if (typeof errorPerfil !== "undefined" && errorPerfil) { %>
-        <p class="error-msg">
-            <%= errorPerfil %>
-        </p>
+        <p class="error-msg"><%= errorPerfil %></p>
     <% } %>
 
     <!-- DATOS DEL USUARIO -->
     <div class="perfil-header-vapor">
+
         <h2 class="vapor-title">@<%= user.username %></h2>
 
-        <p class="perfil-info">Email: <span><%= user.email || "No especificado" %></span></p>
-        <p class="perfil-info">Biografía: <span><%= user.biografia || "Sin biografía" %></span></p>
+        <p class="perfil-info">
+            Email: <span><%= user.email || "No especificado" %></span>
+        </p>
+
+        <p class="perfil-info">
+            Biografía: <span><%= user.biografia || "Sin biografía" %></span>
+        </p>
+
+        <!-- CONTADORES -->
+        <div class="perfil-contadores">
+            <p><strong>Seguidores:</strong> <%= seguidoresCount %></p>
+            <p><strong>Seguidos:</strong> <%= seguidosCount %></p>
+            <p><strong>Publicaciones:</strong> <%= misPublicaciones.length %></p>
+        </div>
 
         <button class="btn btn-primary btn-editar-perfil" onclick="openPerfilModal()">
             Editar perfil
@@ -27,12 +38,14 @@
             <p class="perfil-no-pubs">No has publicado nada todavía.</p>
         <% } %>
 
-        <% misPublicaciones.forEach(pub => { %>
+        <% misPublicaciones.forEach(function(pub) { %>
+
             <div class="mi-card-vapor" data-id="<%= pub.id_publicacion %>">
 
                 <img src="<%= pub.imagen %>" alt="Mi publicación">
 
                 <div class="mi-card-title">
+
                     <%= pub.titulo %>
 
                     <!-- BOTÓN EDITAR -->
@@ -50,9 +63,11 @@
                           onsubmit="return confirm('¿Seguro que quieres eliminar esta publicación?');">
                         <button type="submit" class="btn-delete-small">Eliminar</button>
                     </form>
+
                 </div>
 
             </div>
+
         <% }) %>
 
     </div>
@@ -60,10 +75,10 @@
 </div>
 
 <script>
-    // Conectar las tarjetas del perfil al modal de lectura
-    document.querySelectorAll('.mi-card-vapor').forEach(card => {
-        card.addEventListener('click', () => {
-            const id = card.dataset.id;
+    // Abrir modal de lectura al hacer clic en una tarjeta
+    document.querySelectorAll('.mi-card-vapor').forEach(function(card) {
+        card.addEventListener('click', function() {
+            var id = card.dataset.id;
             cargarPublicacion(id);
             abrirModal();
         });

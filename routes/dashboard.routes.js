@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 
 const { requireLogin } = require("../middleware/auth");
-const { crearComentario } = require("../controllers/comentarios.controller");
+const { mostrarDashboard } = require("../controllers/dashboard.controller");
 
 // ===============================
-// CREAR COMENTARIO
+// DASHBOARD
 // ===============================
-router.post("/comentarios/:id", requireLogin, crearComentario);
+router.get("/dashboard", requireLogin, mostrarDashboard);
 
 module.exports = router;

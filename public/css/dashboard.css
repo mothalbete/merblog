@@ -114,6 +114,15 @@
     text-shadow: 0 0 6px rgba(255,79,216,0.7);
 }
 
+/* Contador de visitas */
+.pub-visitas {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #c2c2ff;
+    opacity: 0.8;
+}
+
 /* ============================================================
    BOTONES EDITAR / ELIMINAR
    ============================================================ */
@@ -149,6 +158,44 @@
 
 .btn-delete-small:hover {
     background: rgba(255,80,120,0.15);
+    box-shadow: 0 0 8px rgba(255,80,120,0.7);
+}
+
+/* ============================================================
+   BOTONES SEGUIR / SIGUIENDO
+   ============================================================ */
+
+.btn-seguir-small {
+    background: transparent;
+    border: 1px solid #00f5ff;
+    color: #00f5ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-seguir-small:hover {
+    background: rgba(0,245,255,0.15);
+    box-shadow: 0 0 8px rgba(0,245,255,0.7);
+}
+
+.btn-siguiendo-small {
+    background: rgba(0,245,255,0.15);
+    border: 1px solid #00f5ff;
+    color: #00f5ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-siguiendo-small:hover {
+    background: rgba(255,80,120,0.15);
+    border-color: #ff5078;
+    color: #ff5078;
     box-shadow: 0 0 8px rgba(255,80,120,0.7);
 }
 
@@ -196,6 +243,9 @@
 
 .mi-card-vapor:hover {
     transform: scale(1.03);
+    box-shadow:
+        0 0 20px rgba(255,79,216,0.45),
+        0 0 30px rgba(0,245,255,0.35);
 }
 
 .mi-card-vapor img {
@@ -263,6 +313,7 @@
     overflow: hidden;
     position: relative;
     animation: modalFade 0.25s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 /* Botón cerrar */
@@ -322,7 +373,7 @@
 }
 
 .modal-acordeon-content.abierto {
-    max-height: 350px;
+    max-height: 1000px;
     padding: 15px;
 }
 
@@ -374,8 +425,25 @@
     color: #fdfdfd;
 }
 
+/* Scrollbar vaporwave en modales */
+.modal-pub-left::-webkit-scrollbar,
+.modal-pub-right::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-pub-left::-webkit-scrollbar-thumb,
+.modal-pub-right::-webkit-scrollbar-thumb {
+    background: #6b5bff;
+    border-radius: 10px;
+}
+
+.modal-pub-left::-webkit-scrollbar-track,
+.modal-pub-right::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+}
+
 /* ============================================================
-   MODAL EDITAR PUBLICACIÓN (NUEVO)
+   MODAL EDITAR PUBLICACIÓN
    ============================================================ */
 
 .modal-editar-card {
@@ -387,6 +455,7 @@
     border-radius: 16px;
     animation: modalFade 0.25s ease;
     position: relative;
+    background: linear-gradient(145deg, rgba(10,10,30,0.95), rgba(40,20,70,0.95));
 }
 
 .modal-editar-title {
@@ -431,6 +500,75 @@
 
 .filtro-select:hover {
     box-shadow: 0 0 15px rgba(0,245,255,0.6);
+}
+
+/* ============================================================
+   MODAL USUARIO (CORREGIDO)
+   ============================================================ */
+
+.modal-usuario-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+}
+
+.modal-usuario-card {
+    width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: rgba(10,10,30,0.95);
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(255,79,216,0.4);
+    position: relative;
+    z-index: 6000;
+}
+
+/* BOTÓN DE CERRAR DEL MODAL-USUARIO */
+.modal-usuario-close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #ffb3ff;
+    text-shadow: 0 0 8px #ff4fd8;
+    z-index: 7000;
+}
+
+.modal-usuario-close:hover {
+    color: white;
+}
+
+.usuario-publicaciones-scroll {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.usuario-publicaciones-scroll img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.usuario-link {
+    cursor: pointer;
+    color: #00f5ff;
+    font-weight: bold;
+    text-shadow: 0 0 6px rgba(0,245,255,0.7);
+}
+
+.usuario-link:hover {
+    color: #ff4fd8;
+    text-shadow: 0 0 8px #ff4fd8;
 }
 
 /* Animación modal */

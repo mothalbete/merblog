@@ -1,21 +1,18 @@
 <!-- OVERLAY -->
 <div id="modal-bg" class="modal-pub-overlay">
 
-    <!-- CONTENEDOR PRINCIPAL -->
     <div id="modal-publicacion" class="modal-pub-card vapor-card">
 
-        <!-- BOTÓN CERRAR -->
         <div class="modal-pub-close" onclick="cerrarModal()">✖</div>
 
-        <!-- COLUMNA IZQUIERDA -->
+        <!-- IZQUIERDA -->
         <div class="modal-pub-left">
 
             <img id="modal-img" src="" alt="Imagen" class="modal-pub-img">
 
-            <!-- ACCIONES (EDITAR / ELIMINAR) -->
+            <!-- ACCIONES (EDITAR / ELIMINAR / SEGUIR) -->
             <div id="modal-actions" style="padding: 10px; text-align:center;"></div>
 
-            <!-- ACORDEÓN -->
             <div class="modal-acordeon" onclick="toggleAcordeon()">
                 Información de la publicación ⯆
             </div>
@@ -33,6 +30,10 @@
                     <strong>Fecha:</strong> <span id="modal-fecha"></span>
                 </p>
 
+                <p class="modal-pub-meta">
+                    <strong>Visitas:</strong> <span id="modal-visitas"></span>
+                </p>
+
                 <div class="modal-pub-tags">
                     <strong>Etiquetas:</strong>
                     <span id="modal-etiquetas"></span>
@@ -40,17 +41,15 @@
             </div>
         </div>
 
-        <!-- COLUMNA DERECHA -->
+        <!-- DERECHA -->
         <div class="modal-pub-right">
 
             <h3 class="modal-pub-subtitle">Comentarios</h3>
 
             <div class="modal-pub-comments" id="modal-comentarios"></div>
 
-            <!-- FORMULARIO -->
             <form id="modal-form" method="POST" class="modal-pub-form vapor-form">
                 <textarea name="texto" required class="modal-pub-textarea"></textarea>
-
                 <button type="submit" class="btn btn-primary">Enviar</button>
             </form>
 
@@ -67,66 +66,139 @@
         document.getElementById("modal-bg").style.display = "none";
     }
 
-    // Cerrar modal haciendo clic fuera
     window.addEventListener("click", function (e) {
         const fondo = document.getElementById("modal-bg");
         if (e.target === fondo) cerrarModal();
     });
 
-    // ACORDEÓN
     function toggleAcordeon() {
         const cont = document.getElementById("acordeon-contenido");
         cont.classList.toggle("abierto");
     }
 
-    // Cargar datos de la publicación
+    // ============================
+    // CARGAR PUBLICACIÓN
+    // ============================
     async function cargarPublicacion(id) {
-        const res = await fetch(`/publicaciones/${id}`);
+        const res = await fetch("/publicaciones/" + id);
         const data = await res.json();
 
+        // IMAGEN Y TEXTO
         document.getElementById("modal-img").src = data.imagen;
         document.getElementById("modal-titulo").textContent = data.titulo;
         document.getElementById("modal-contenido-texto").textContent = data.contenido;
         document.getElementById("modal-autor").textContent = data.autor;
         document.getElementById("modal-fecha").textContent = new Date(data.fecha).toLocaleString();
+        document.getElementById("modal-visitas").textContent = data.visitas;
 
-        document.getElementById("modal-etiquetas").innerHTML =
-            data.etiquetas.map(e => `<span class="tag">#${e}</span>`).join("");
+        // ETIQUETAS
+        let etiquetasHTML = "";
+        data.etiquetas.forEach(function (e) {
+            etiquetasHTML += '<span class="tag">#' + e + '</span>';
+        });
+        document.getElementById("modal-etiquetas").innerHTML = etiquetasHTML;
 
+        // ============================
         // COMENTARIOS
+        // ============================
         const contComentarios = document.getElementById("modal-comentarios");
-        contComentarios.innerHTML =
-            data.comentarios.length === 0
-                ? "<p class='no-comments'>No hay comentarios.</p>"
-                : data.comentarios.map(c => `
-                    <div class="modal-comment">
-                        <strong>@${c.autor}</strong><br>
-                        ${c.texto}
-                    </div>
-                `).join("");
 
-        // FORMULARIO DE COMENTARIOS
-        document.getElementById("modal-form").action = `/comentarios/${id}`;
+        if (data.comentarios.length === 0) {
+            contComentarios.innerHTML = "<p class='no-comments'>No hay comentarios.</p>";
+        } else {
+            let html = "";
+            data.comentarios.forEach(function (c) {
+                html += '<div class="modal-comment">';
+                html += '<strong>@' + c.autor + '</strong>';
 
-        // ACCIONES (EDITAR / ELIMINAR)
+                // BOTÓN SEGUIR EN COMENTARIOS
+                if (!c.esAutor && !c.yoSoyEl) {
+                    if (!c.yoLeSigo) {
+                        html += '<button class="btn-seguir-small comentario-seguir" data-user="' + c.id_usuario + '">Seguir</button>';
+                    } else {
+                        html += '<button class="btn-siguiendo-small comentario-siguiendo" data-user="' + c.id_usuario + '">Siguiendo</button>';
+                    }
+                }
+
+                html += '<br>' + c.texto + '</div>';
+            });
+            contComentarios.innerHTML = html;
+        }
+
+        // FORMULARIO
+        document.getElementById("modal-form").action = "/comentarios/" + id;
+
+        // ============================
+        // ACCIONES (EDITAR / ELIMINAR / SEGUIR)
+        // ============================
         const actions = document.getElementById("modal-actions");
 
         if (data.propietario) {
-            actions.innerHTML = `
-                <button class="btn-edit-small"
-                        onclick="abrirModalEditar('${data.id}')">
-                    Editar
-                </button>
-
-                <form action="/publicaciones/${data.id}/eliminar"
-                      method="POST"
-                      onsubmit="return confirm('¿Seguro que quieres eliminar esta publicación?');"
-                      style="display:inline-block;">
-                    <button type="submit" class="btn-delete-small">Eliminar</button>
-                </form>
-            `;
+            actions.innerHTML =
+                '<button class="btn-edit-small" onclick="abrirModalEditar(' + data.id + ')">Editar</button>' +
+                '<form action="/publicaciones/' + data.id + '/eliminar" method="POST" style="display:inline-block;" onsubmit="return confirm(\'¿Seguro que quieres eliminar esta publicación?\');">' +
+                '<button type="submit" class="btn-delete-small">Eliminar</button>' +
+                '</form>';
         } else {
-            actions.innerHTML = "";
+            // BOTÓN SEGUIR EN EL MODAL
+            if (!data.yoLeSigo) {
+                actions.innerHTML =
+                    '<button class="btn-seguir-small modal-seguir" data-user="' + data.id_usuario + '">Seguir</button>';
+            } else {
+                actions.innerHTML =
+                    '<button class="btn-siguiendo-small modal-siguiendo" data-user="' + data.id_usuario + '">Siguiendo</button>';
+            }
         }
+
+        // ACTIVAR EVENTOS DE SEGUIR
+        activarBotonesSeguir();
+    }
+
+    // ============================
+    // SEGUIR / DEJAR DE SEGUIR
+    // ============================
+    function activarBotonesSeguir() {
+        // SEGUIR
+        document.querySelectorAll(".modal-seguir, .comentario-seguir").forEach(function (btn) {
+            btn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                const id = btn.dataset.user;
+
+                fetch("/seguir/" + id, { method: "POST" })
+                    .then(r => r.json())
+                    .then(function (data) {
+                        if (data.ok) {
+                            btn.classList.remove("btn-seguir-small");
+                            btn.classList.add("btn-siguiendo-small");
+                            btn.textContent = "Siguiendo";
+                        }
+                    });
+            });
+        });
+
+        // DEJAR DE SEGUIR
+        document.querySelectorAll(".modal-siguiendo, .comentario-siguiendo").forEach(function (btn) {
+            btn.addEventListener("mouseenter", function () {
+                btn.textContent = "Dejar de seguir";
+            });
+            btn.addEventListener("mouseleave", function () {
+                btn.textContent = "Siguiendo";
+            });
+
+            btn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                const id = btn.dataset.user;
+
+                fetch("/dejar-de-seguir/" + id, { method: "POST" })
+                    .then(r => r.json())
+                    .then(function (data) {
+                        if (data.ok) {
+                            btn.classList.remove("btn-siguiendo-small");
+                            btn.classList.add("btn-seguir-small");
+                            btn.textContent = "Seguir";
+                        }
+                    });
+            });
+        });
     }
 </script>

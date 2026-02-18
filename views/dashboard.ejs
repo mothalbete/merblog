@@ -31,12 +31,22 @@
 
     <!-- PUBLICACIONES -->
     <section id="publicaciones" class="dash-section active">
-        <%- include("partials/dash-publicaciones") %>
+        <%- include("partials/dash-publicaciones", {
+            publicaciones,
+            user,
+            fechasDisponibles,
+            etiquetasDisponibles
+        }) %>
     </section>
 
     <!-- PERFIL -->
     <section id="perfil" class="dash-section">
-        <%- include("partials/dash-perfil") %>
+        <%- include("partials/dash-perfil", {
+            user,
+            seguidoresCount,
+            seguidosCount,
+            misPublicaciones
+        }) %>
     </section>
 
     <!-- NUEVA PUBLICACIÓN -->
@@ -45,13 +55,16 @@
     </section>
 
     <!-- MODAL LECTURA -->
-    <%- include("partials/modal-publicacion") %>
+    <%- include("partials/modal-publicacion", { user }) %>
 
     <!-- MODAL EDITAR -->
     <%- include("partials/modal-editar-publicacion") %>
 
-    <!-- MODAL PERFIL -->
-    <%- include("partials/modal-perfil") %>
+    <!-- MODAL PERFIL (EL TUYO) -->
+    <%- include("partials/modal-perfil", { user }) %>
+
+    <!-- MODAL USUARIO (OTROS USUARIOS) -->
+    <%- include("partials/modal-usuario") %>
 
     <script>
         function mostrarSeccion(id) {
@@ -59,6 +72,8 @@
             document.getElementById(id).classList.add('active');
         }
     </script>
+
+    <script src="/js/dashboard.js"></script>
 
 </body>
 </html>

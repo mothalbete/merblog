@@ -1,10 +1,8 @@
 <!-- OVERLAY EDITAR -->
 <div id="modal-editar-bg" class="modal-pub-overlay" style="display:none;">
 
-    <!-- CONTENEDOR PRINCIPAL -->
     <div id="modal-editar" class="modal-editar-card vapor-card">
 
-        <!-- BOTÓN CERRAR -->
         <div class="modal-pub-close" onclick="cerrarModalEditar()">✖</div>
 
         <h2 class="modal-editar-title">Editar Publicación</h2>
@@ -47,17 +45,24 @@
         document.getElementById("modal-editar-bg").style.display = "flex";
 
         // Cargar datos actuales
-        fetch(`/publicaciones/${id}/editar`)
-            .then(res => res.json())
-            .then(data => {
+        fetch("/publicaciones/" + id + "/editar")
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+
                 document.getElementById("editar-titulo").value = data.titulo;
                 document.getElementById("editar-contenido").value = data.contenido;
                 document.getElementById("editar-estado").value = data.estado;
-                document.getElementById("editar-etiquetas").value = data.etiquetas.join(", ");
 
-                // Establecer acción del formulario
+                // Etiquetas como texto plano
+                var etiquetasTexto = "";
+                if (data.etiquetas && data.etiquetas.length > 0) {
+                    etiquetasTexto = data.etiquetas.join(", ");
+                }
+                document.getElementById("editar-etiquetas").value = etiquetasTexto;
+
+                // Acción del formulario
                 document.getElementById("form-editar-publicacion").action =
-                    `/publicaciones/${id}/editar`;
+                    "/publicaciones/" + id + "/editar";
             });
     }
 
@@ -67,7 +72,9 @@
 
     // Cerrar modal haciendo clic fuera
     window.addEventListener("click", function (e) {
-        const fondo = document.getElementById("modal-editar-bg");
-        if (e.target === fondo) cerrarModalEditar();
+        var fondo = document.getElementById("modal-editar-bg");
+        if (e.target === fondo) {
+            cerrarModalEditar();
+        }
     });
 </script>

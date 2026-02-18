@@ -1,7 +1,6 @@
 <!-- FILTROS -->
 <div class="filtros-vapor">
 
-    <!-- FILTRO POR FECHA -->
     <select id="filtro-fecha" class="filtro-select">
         <option value="">Todas las fechas</option>
         <% fechasDisponibles.forEach(f => { %>
@@ -11,7 +10,6 @@
         <% }) %>
     </select>
 
-    <!-- FILTRO POR ETIQUETA -->
     <select id="filtro-etiqueta" class="filtro-select">
         <option value="">Todas las etiquetas</option>
         <% etiquetasDisponibles.forEach(e => { %>
@@ -21,63 +19,116 @@
 
 </div>
 
-<!-- GRID DE PUBLICACIONES -->
+<!-- GRID -->
 <div class="dash-publicaciones-grid" id="grid-publicaciones">
 
     <% if (publicaciones.length === 0) { %>
         <p class="no-publicaciones-msg">No hay publicaciones todavía.</p>
     <% } %>
 
-    <% publicaciones.forEach(pub => { %>
+    <% publicaciones.forEach(pub => { 
+
+        let seguidores = [];
+        if (pub.usuarios && pub.usuarios.seguidores) {
+            seguidores = pub.usuarios.seguidores;
+        }
+
+        const yaSigo = seguidores.some(s => s.id_seguidor === user.id);
+
+        const etiquetasStr = pub.publicacion_etiquetas
+            ? pub.publicacion_etiquetas.map(e => e.etiqueta).join(',')
+            : "";
+
+    %>
+
         <div class="pub-card-vapor"
              data-id="<%= pub.id_publicacion %>"
              data-fecha="<%= pub.fecha_publicacion.toISOString().split('T')[0] %>"
-             data-etiquetas="<%= pub.publicacion_etiquetas?.map(e => e.etiqueta).join(',') || '' %>">
+             data-etiquetas="<%= etiquetasStr %>">
 
             <img src="<%= pub.imagen %>" alt="Publicación">
 
             <div class="pub-card-author">
-                @<%= pub.usuarios.nombre %>
+
+                <!-- NOMBRE DEL AUTOR → ABRE MODAL-USUARIO -->
+                <span class="usuario-link"
+                      data-user="<%= pub.id_usuario %>">
+                    @<%= pub.usuarios.nombre %>
+                </span>
+
+                <span class="pub-visitas">👁 <%= pub.numero_visitas %></span>
+
+                <% if (pub.id_usuario !== user.id) { %>
+
+                    <% if (!yaSigo) { %>
+                        <button class="btn-seguir-small seguir-btn"
+                                data-user="<%= pub.id_usuario %>">
+                            Seguir
+                        </button>
+                    <% } else { %>
+                        <button class="btn-siguiendo-small siguiendo-btn"
+                                data-user="<%= pub.id_usuario %>">
+                            Siguiendo
+                        </button>
+                    <% } %>
+
+                <% } %>
 
                 <% if (pub.id_usuario === user.id) { %>
 
-                    <!-- BOTÓN EDITAR -->
                     <button type="button"
-                            class="btn-edit-small"
-                            onclick="event.stopPropagation(); abrirModalEditar('<%= pub.id_publicacion %>')">
+                            class="btn-edit-small edit-btn"
+                            data-id="<%= pub.id_publicacion %>">
                         Editar
                     </button>
 
-                    <!-- BOTÓN ELIMINAR -->
                     <form action="/publicaciones/<%= pub.id_publicacion %>/eliminar" 
                           method="POST" 
                           class="delete-form"
-                          onclick="event.stopPropagation();"
                           onsubmit="return confirm('¿Seguro que quieres eliminar esta publicación?');">
                         <button type="submit" class="btn-delete-small">Eliminar</button>
                     </form>
 
                 <% } %>
+
             </div>
 
         </div>
+
     <% }) %>
 
 </div>
 
 <script>
-    // Abrir modal de lectura al hacer clic en la tarjeta (pero no en los botones)
+    // ============================
+    // ABRIR MODAL DE PUBLICACIÓN
+    // ============================
     document.querySelectorAll('.pub-card-vapor').forEach(card => {
-        card.addEventListener('click', (e) => {
+        card.addEventListener('click', e => {
             if (e.target.closest('.delete-form')) return;
+            if (e.target.classList.contains('seguir-btn')) return;
+            if (e.target.classList.contains('siguiendo-btn')) return;
+            if (e.target.classList.contains('edit-btn')) return;
+            if (e.target.classList.contains('usuario-link')) return;
 
-            const id = card.dataset.id;
-            cargarPublicacion(id);
+            cargarPublicacion(card.dataset.id);
             abrirModal();
         });
     });
 
+    // ============================
+    // ABRIR MODAL-USUARIO
+    // ============================
+    document.querySelectorAll('.usuario-link').forEach(link => {
+        link.addEventListener('click', e => {
+            e.stopPropagation();
+            cargarUsuario(link.dataset.user);
+        });
+    });
+
+    // ============================
     // FILTROS
+    // ============================
     const filtroFecha = document.getElementById("filtro-fecha");
     const filtroEtiqueta = document.getElementById("filtro-etiqueta");
     const cards = document.querySelectorAll(".pub-card-vapor");

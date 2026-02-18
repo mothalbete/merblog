@@ -25,15 +25,24 @@
     <!-- CONTENIDO PRINCIPAL -->
     <main class="landing-main">
 
+        <!-- INFO -->
         <section id="info" class="landing-section active">
             <%- include('partials/info') %>
         </section>
 
+        <!-- LOGIN -->
         <section id="login" class="landing-section">
+            <% if (errorLogin) { %>
+                <div class="landing-error"><%= errorLogin %></div>
+            <% } %>
             <%- include('partials/login') %>
         </section>
 
+        <!-- REGISTER -->
         <section id="register" class="landing-section">
+            <% if (errorRegister) { %>
+                <div class="landing-error"><%= errorRegister %></div>
+            <% } %>
             <%- include('partials/register') %>
         </section>
 
