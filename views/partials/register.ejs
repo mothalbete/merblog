@@ -1,0 +1,29 @@
+<h2>Registro</h2>
+
+<% if (errorRegister) { %>
+    <p style="color:red; font-weight:bold;"><%= errorRegister %></p>
+<% } %>
+
+<form action="/register" method="POST">
+    <label>Nick:</label>
+    <input type="text" name="nick" required>
+
+    <br><br>
+
+    <label>Nombre real:</label>
+    <input type="text" name="username" required>
+
+    <br><br>
+
+    <label>Email:</label>
+    <input type="email" name="email" required>
+
+    <br><br>
+
+    <label>Contraseña:</label>
+    <input type="password" name="password" required>
+
+    <br><br>
+
+    <button type="submit">Crear cuenta</button>
+</form>

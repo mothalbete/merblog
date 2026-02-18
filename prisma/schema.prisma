@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model comentario {
+  id_comentario    Int         @id @default(autoincrement())
+  id_usuario       Int
+  id_publicacion   Int
+  texto            String
+  fecha_comentario DateTime    @default(now()) @db.Timestamp(6)
+  fecha_edicion    DateTime?   @db.Timestamp(6)
+  moderado         Boolean     @default(false)
+  puntuacion       Int?
+  publicacion      publicacion @relation(fields: [id_publicacion], references: [id_publicacion], onDelete: Cascade, onUpdate: NoAction)
+  usuarios         usuarios    @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([id_publicacion], map: "idx_comentario_publicacion")
+  @@index([id_usuario], map: "idx_comentario_usuario")
+}
+
+model publicacion {
+  id_publicacion        Int                     @id @default(autoincrement())
+  id_usuario            Int
+  titulo                String                  @db.VarChar(200)
+  contenido             String
+  fecha_publicacion     DateTime                @default(now()) @db.Timestamp(6)
+  fecha_actualizacion   DateTime                @default(now()) @db.Timestamp(6)
+  estado                String                  @db.VarChar(50)
+  numero_visitas        Int                     @default(0)
+  comentario            comentario[]
+  usuarios              usuarios                @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  publicacion_etiquetas publicacion_etiquetas[]
+  imagen                String?                 @db.VarChar(255)
+
+  @@index([id_usuario], map: "idx_publicacion_autor")
+}
+
+model publicacion_etiquetas {
+  id_etiqueta    Int         @id @default(autoincrement())
+  id_publicacion Int
+  etiqueta       String      @db.VarChar(100)
+  publicacion    publicacion @relation(fields: [id_publicacion], references: [id_publicacion], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([id_publicacion], map: "idx_etiquetas_publicacion")
+}
+
+model usuario_telefonos {
+  id_telefono Int      @id @default(autoincrement())
+  id_usuario  Int
+  telefono    String   @db.VarChar(30)
+  usuarios    usuarios @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model usuarios {
+  id_usuario        Int                 @id @default(autoincrement())
+  nombre            String              @db.VarChar(100)
+  email             String              @unique @db.VarChar(150)
+  contraseña        String              @map("contraseña") @db.VarChar(200)
+  fecha_registro    DateTime            @default(now()) @db.Timestamp(6)
+  activo            Boolean             @default(true)
+  biografia         String?
+  comentario        comentario[]
+  publicacion       publicacion[]
+  usuario_telefonos usuario_telefonos[]
+  nick              String?             @unique @db.VarChar(100)
+
+}

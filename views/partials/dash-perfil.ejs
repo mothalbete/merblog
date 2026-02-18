@@ -1,0 +1,118 @@
+<style>
+    .perfil-container {
+        max-width: 800px;
+        margin: auto;
+    }
+
+    .perfil-header {
+        background: #f3f3f3;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+    }
+
+    .perfil-header h2 {
+        margin: 0;
+    }
+
+    .perfil-header p {
+        margin: 5px 0;
+        color: #555;
+    }
+
+    .btn-editar {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 8px 15px;
+        background: #333;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    /* GRID DE PUBLICACIONES DEL USUARIO */
+    .mis-publicaciones-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+    }
+
+    .mi-card {
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .mi-card:hover {
+        transform: scale(1.03);
+    }
+
+    .mi-card img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+    }
+
+    .mi-card .titulo {
+        padding: 10px;
+        font-weight: bold;
+        text-align: center;
+        background: #f7f7f7;
+    }
+</style>
+
+<div class="perfil-container">
+
+    <!-- MENSAJE DE ERROR DE PERFIL -->
+    <% if (typeof errorPerfil !== "undefined" && errorPerfil) { %>
+        <p style="color:red; font-weight:bold; margin-bottom:15px;">
+            <%= errorPerfil %>
+        </p>
+    <% } %>
+
+    <!-- DATOS DEL USUARIO -->
+    <div class="perfil-header">
+        <h2>@<%= user.username %></h2>
+        <p>Email: <%= user.email || "No especificado" %></p>
+        <p>Biografía: <%= user.biografia || "Sin biografía" %></p>
+
+        <!-- BOTÓN PARA ABRIR EL MODAL -->
+        <a class="btn-editar" onclick="openPerfilModal()">Editar perfil</a>
+    </div>
+
+    <h3>Mis publicaciones</h3>
+
+    <div class="mis-publicaciones-grid">
+
+        <% if (misPublicaciones.length === 0) { %>
+            <p>No has publicado nada todavía.</p>
+        <% } %>
+
+        <% misPublicaciones.forEach(pub => { %>
+            <div class="mi-card" data-id="<%= pub.id_publicacion %>">
+
+                <img src="<%= pub.imagen %>" alt="Mi publicación">
+
+                <div class="titulo"><%= pub.titulo %></div>
+
+            </div>
+        <% }) %>
+
+    </div>
+
+</div>
+
+<script>
+    // Conectar las tarjetas del perfil al modal de publicaciones
+    document.querySelectorAll('.mi-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const id = card.dataset.id;
+            cargarPublicacion(id);
+            abrirModal();
+        });
+    });
+</script>

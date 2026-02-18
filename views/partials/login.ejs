@@ -1,0 +1,19 @@
+<h2>Iniciar sesión</h2>
+
+<% if (errorLogin) { %>
+    <p style="color:red; font-weight:bold;"><%= errorLogin %></p>
+<% } %>
+
+<form action="/login" method="POST">
+    <label>Nick o Email:</label>
+    <input type="text" name="username" required>
+
+    <br><br>
+
+    <label>Contraseña:</label>
+    <input type="password" name="password" required>
+
+    <br><br>
+
+    <button type="submit">Entrar</button>
+</form>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing</title>
+
+    <style>
+        nav {
+            background: #333;
+            padding: 10px;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: white;
+            cursor: pointer;
+        }
+
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a onclick="showSection('info')">Información</a>
+        <a onclick="showSection('login')">Iniciar sesión</a>
+        <a onclick="showSection('register')">Registrarse</a>
+    </nav>
+
+    <section id="info" class="section active">
+        <%- include('partials/info') %>
+    </section>
+
+    <section id="login" class="section">
+        <%- include('partials/login') %>
+    </section>
+
+    <section id="register" class="section">
+        <%- include('partials/register') %>
+    </section>
+
+    <script>
+        function showSection(id) {
+            // Ocultar todas
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+
+            // Mostrar la seleccionada
+            document.getElementById(id).classList.add('active');
+
+            // Guardar pestaña en localStorage
+            localStorage.setItem("activeTab", id);
+        }
+
+        // Al cargar la página, recuperar la pestaña guardada
+        window.addEventListener("DOMContentLoaded", () => {
+            const savedTab = localStorage.getItem("activeTab") || "info";
+            showSection(savedTab);
+        });
+    </script>
+
+
+</body>
+
+</html>

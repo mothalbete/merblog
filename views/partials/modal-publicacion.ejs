@@ -1,0 +1,208 @@
+<style>
+    /* Fondo oscuro */
+    #modal-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    #modal-publicacion {
+        background: white;
+        width: 90%;
+        max-width: 1000px;
+        height: 90vh;
+        display: flex;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* COLUMNA IZQUIERDA */
+    .modal-left {
+        flex: 1.2;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    .modal-left img {
+        width: 100%;
+        object-fit: contain;
+        background: #000;
+    }
+
+    /* ACORDEÓN */
+    .acordeon {
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(6px);
+        padding: 12px;
+        cursor: pointer;
+        font-weight: bold;
+        color: white;
+        border-top: 1px solid rgba(255,255,255,0.3);
+        text-align: center;
+        transition: background 0.3s;
+    }
+
+    .acordeon:hover {
+        background: rgba(255,255,255,0.25);
+    }
+
+    /* CONTENIDO DEL ACORDEÓN (DESPLIEGUE HACIA ARRIBA) */
+    .acordeon-contenido {
+        max-height: 0;
+        overflow: hidden;
+        background: rgba(0,0,0,0.4);
+        backdrop-filter: blur(8px);
+        color: white;
+        padding: 0 15px;
+        transition: max-height 0.4s ease;
+    }
+
+    .acordeon-contenido.abierto {
+        max-height: 300px; /* altura máxima del desplegable */
+        padding: 15px;
+    }
+
+    /* COLUMNA DERECHA */
+    .modal-right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        overflow: hidden;
+    }
+
+    .comentarios-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 10px;
+        margin-bottom: 15px;
+    }
+
+    .comentario {
+        background: #f7f7f7;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    /* Botón cerrar */
+    #modal-publicacion .cerrar {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        cursor: pointer;
+        font-size: 22px;
+        font-weight: bold;
+        z-index: 2000;
+        color: white;
+        text-shadow: 0 0 5px black;
+    }
+</style>
+
+<!-- MODAL -->
+<div id="modal-bg">
+    <div id="modal-publicacion">
+
+        <div class="cerrar" onclick="cerrarModal()">✖</div>
+
+        <!-- COLUMNA IZQUIERDA -->
+        <div class="modal-left">
+            <img id="modal-img" src="" alt="Imagen">
+
+            <!-- ACORDEÓN DE INFORMACIÓN -->
+            <div class="acordeon" onclick="toggleAcordeon()">
+                Información de la publicación ⯆
+            </div>
+
+            <div id="acordeon-contenido" class="acordeon-contenido">
+                <h2 id="modal-titulo"></h2>
+                <p id="modal-contenido-texto"></p>
+                <p><strong>Autor:</strong> @<span id="modal-autor"></span></p>
+                <p><strong>Fecha:</strong> <span id="modal-fecha"></span></p>
+
+                <div class="etiquetas">
+                    <strong>Etiquetas:</strong>
+                    <span id="modal-etiquetas"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUMNA DERECHA -->
+        <div class="modal-right">
+
+            <h3>Comentarios</h3>
+
+            <div class="comentarios-scroll" id="modal-comentarios"></div>
+
+            <!-- FORMULARIO -->
+            <form id="modal-form" method="POST">
+                <textarea name="texto" required style="width:100%; height:80px;"></textarea>
+                <br><br>
+                <button type="submit">Enviar</button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function abrirModal() {
+        document.getElementById("modal-bg").style.display = "flex";
+    }
+
+    function cerrarModal() {
+        document.getElementById("modal-bg").style.display = "none";
+    }
+
+    // Cerrar modal haciendo clic fuera
+    window.addEventListener("click", function (e) {
+        const fondo = document.getElementById("modal-bg");
+        if (e.target === fondo) cerrarModal();
+    });
+
+    // ACORDEÓN
+    function toggleAcordeon() {
+        const cont = document.getElementById("acordeon-contenido");
+        cont.classList.toggle("abierto");
+    }
+
+    // Cargar datos de la publicación
+    async function cargarPublicacion(id) {
+        const res = await fetch(`/publicaciones/${id}`);
+        const data = await res.json();
+
+        document.getElementById("modal-img").src = data.imagen;
+        document.getElementById("modal-titulo").textContent = data.titulo;
+        document.getElementById("modal-contenido-texto").textContent = data.contenido;
+        document.getElementById("modal-autor").textContent = data.autor;
+        document.getElementById("modal-fecha").textContent = new Date(data.fecha).toLocaleString();
+
+        document.getElementById("modal-etiquetas").innerHTML =
+            data.etiquetas.map(e => `<span>#${e}</span>`).join("");
+
+        const contComentarios = document.getElementById("modal-comentarios");
+        contComentarios.innerHTML =
+            data.comentarios.length === 0
+                ? "<p>No hay comentarios.</p>"
+                : data.comentarios.map(c => `
+                    <div class="comentario">
+                        <strong>@${c.autor}</strong><br>
+                        ${c.texto}
+                    </div>
+                `).join("");
+
+        document.getElementById("modal-form").action = `/comentarios/${id}`;
+    }
+</script>

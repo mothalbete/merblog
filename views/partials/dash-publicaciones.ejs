@@ -1,0 +1,68 @@
+<style>
+    /* GRID ESTILO INSTAGRAM */
+    .grid-publicaciones {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+        padding: 10px;
+    }
+
+    .card-publicacion {
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .card-publicacion:hover {
+        transform: scale(1.03);
+    }
+
+    .card-publicacion img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .card-publicacion .autor {
+        padding: 10px;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        background: #f7f7f7;
+    }
+</style>
+
+<div class="grid-publicaciones">
+
+    <% if (publicaciones.length === 0) { %>
+        <p>No hay publicaciones todavía.</p>
+    <% } %>
+
+    <% publicaciones.forEach(pub => { %>
+        <div class="card-publicacion" data-id="<%= pub.id_publicacion %>">
+            
+            <!-- Imagen -->
+            <img src="<%= pub.imagen %>" alt="Publicación">
+
+            <!-- Autor -->
+            <div class="autor">@<%= pub.usuarios.nombre %></div>
+
+        </div>
+    <% }) %>
+
+</div>
+
+<script>
+    // Conectar tarjetas con el modal
+    document.querySelectorAll('.card-publicacion').forEach(card => {
+        card.addEventListener('click', () => {
+            const id = card.dataset.id;
+            cargarPublicacion(id);
+            abrirModal();
+        });
+    });
+</script>

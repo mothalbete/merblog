@@ -1,0 +1,25 @@
+<h2>Nueva Publicación</h2>
+
+<form action="/publicaciones/nueva" method="POST" enctype="multipart/form-data">
+
+    <label>Título:</label><br>
+    <input type="text" name="titulo" required style="width: 100%;"><br><br>
+
+    <label>Contenido (texto):</label><br>
+    <textarea name="contenido" required style="width: 100%; height: 120px;"></textarea><br><br>
+
+    <label>Imagen:</label><br>
+    <input type="file" name="imagen" accept="image/*" required><br><br>
+
+    <label>Estado:</label><br>
+    <select name="estado" required>
+        <option value="publicado">Publicado</option>
+        <option value="borrador">Borrador</option>
+    </select><br><br>
+
+    <label>Etiquetas (separadas por comas):</label><br>
+    <input type="text" name="etiquetas" placeholder="playa, verano, viaje" style="width: 100%;"><br><br>
+
+    <button type="submit">Publicar</button>
+
+</form>

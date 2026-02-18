@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* CABECERA */
+        header {
+            background: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header .left {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        header .right {
+            text-align: right;
+        }
+
+        /* NAV DE PESTAÑAS */
+        nav {
+            background: #444;
+            display: flex;
+            gap: 20px;
+            padding: 10px 20px;
+        }
+
+        nav a {
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* SECCIONES */
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- CABECERA -->
+    <header>
+        <div class="left">📸 MerBlog</div>
+
+        <div class="right">
+            <div>Hola, <%= user.username %></div>
+            <div><%= new Date().toLocaleDateString("es-ES") %></div>
+            <a href="/logout" style="color: #ffb3b3;">Cerrar sesión</a>
+        </div>
+    </header>
+
+    <!-- PESTAÑAS -->
+    <nav>
+        <a onclick="showSection('publicaciones')">Publicaciones</a>
+        <a onclick="showSection('nueva')">Nueva Publicación</a>
+        <a onclick="showSection('perfil')">Mi Perfil</a>
+    </nav>
+
+    <!-- SECCIONES -->
+    <section id="publicaciones" class="section active">
+        <%- include('partials/dash-publicaciones') %>
+    </section>
+
+    <section id="nueva" class="section">
+        <%- include('partials/dash-nueva') %>
+    </section>
+
+    <section id="perfil" class="section">
+        <%- include('partials/dash-perfil') %>
+    </section>
+
+    <!-- MODAL PUBLICACIÓN -->
+    <%- include('partials/modal-publicacion') %>
+
+    <!-- MODAL PERFIL -->
+    <%- include('partials/modal-perfil') %>
+
+    <!-- SCRIPT GENERAL -->
+    <script>
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            localStorage.setItem("activeDashTab", id);
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const saved = localStorage.getItem("activeDashTab") || "publicaciones";
+            showSection(saved);
+        });
+
+        /* MODAL PERFIL */
+        function openPerfilModal() {
+            document.getElementById("modalPerfil").style.display = "flex";
+        }
+
+        function closePerfilModal() {
+            document.getElementById("modalPerfil").style.display = "none";
+        }
+    </script>
+
+</body>
+
+</html>
