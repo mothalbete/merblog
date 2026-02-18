@@ -6,69 +6,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landing</title>
 
-    <style>
-        nav {
-            background: #333;
-            padding: 10px;
-            display: flex;
-            gap: 20px;
-        }
-
-        nav a {
-            color: white;
-            cursor: pointer;
-        }
-
-        .section {
-            display: none;
-            padding: 20px;
-        }
-
-        .active {
-            display: block;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/landing.css">
 </head>
 
 <body>
 
-    <nav>
-        <a onclick="showSection('info')">Información</a>
-        <a onclick="showSection('login')">Iniciar sesión</a>
-        <a onclick="showSection('register')">Registrarse</a>
-    </nav>
+    <!-- BOTÓN HAMBURGUESA (solo visible en móvil si lo activas en CSS) -->
+    <div class="sidebar-toggle" onclick="toggleSidebar()">☰</div>
 
-    <section id="info" class="section active">
-        <%- include('partials/info') %>
-    </section>
+    <!-- SIDEBAR -->
+    <aside class="landing-sidebar">
+        <a class="landing-link" onclick="showSection('info')">Información</a>
+        <a class="landing-link" onclick="showSection('login')">Iniciar sesión</a>
+        <a class="landing-link" onclick="showSection('register')">Registrarse</a>
+    </aside>
 
-    <section id="login" class="section">
-        <%- include('partials/login') %>
-    </section>
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="landing-main">
 
-    <section id="register" class="section">
-        <%- include('partials/register') %>
-    </section>
+        <section id="info" class="landing-section active">
+            <%- include('partials/info') %>
+        </section>
+
+        <section id="login" class="landing-section">
+            <%- include('partials/login') %>
+        </section>
+
+        <section id="register" class="landing-section">
+            <%- include('partials/register') %>
+        </section>
+
+    </main>
 
     <script>
         function showSection(id) {
-            // Ocultar todas
-            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            // Ocultar todas las secciones
+            document.querySelectorAll('.landing-section')
+                .forEach(sec => sec.classList.remove('active'));
 
-            // Mostrar la seleccionada
+            // Mostrar la sección seleccionada
             document.getElementById(id).classList.add('active');
 
-            // Guardar pestaña en localStorage
+            // Quitar estado activo de todas las pestañas
+            document.querySelectorAll('.landing-link')
+                .forEach(link => link.classList.remove('active'));
+
+            // Activar la pestaña correspondiente
+            document.querySelector(`.landing-link[onclick="showSection('${id}')"]`)
+                .classList.add('active');
+
+            // Guardar pestaña activa
             localStorage.setItem("activeTab", id);
         }
 
-        // Al cargar la página, recuperar la pestaña guardada
+        // Cargar pestaña guardada
         window.addEventListener("DOMContentLoaded", () => {
             const savedTab = localStorage.getItem("activeTab") || "info";
             showSection(savedTab);
         });
-    </script>
 
+        // Sidebar móvil
+        function toggleSidebar() {
+            document.querySelector('.landing-sidebar').classList.toggle('open');
+        }
+    </script>
 
 </body>
 

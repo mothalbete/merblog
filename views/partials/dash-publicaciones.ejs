@@ -1,55 +1,64 @@
-<style>
-    /* GRID ESTILO INSTAGRAM */
-    .grid-publicaciones {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 20px;
-        padding: 10px;
-    }
+<!-- FILTROS -->
+<div class="filtros-vapor">
 
-    .card-publicacion {
-        background: #fff;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-        cursor: pointer;
-        transition: transform 0.2s ease;
-    }
+    <!-- FILTRO POR FECHA -->
+    <select id="filtro-fecha" class="filtro-select">
+        <option value="">Todas las fechas</option>
+        <% fechasDisponibles.forEach(f => { %>
+            <option value="<%= f.fecha_publicacion.toISOString().split('T')[0] %>">
+                <%= f.fecha_publicacion.toLocaleDateString("es-ES") %>
+            </option>
+        <% }) %>
+    </select>
 
-    .card-publicacion:hover {
-        transform: scale(1.03);
-    }
+    <!-- FILTRO POR ETIQUETA -->
+    <select id="filtro-etiqueta" class="filtro-select">
+        <option value="">Todas las etiquetas</option>
+        <% etiquetasDisponibles.forEach(e => { %>
+            <option value="<%= e.etiqueta %>"><%= e.etiqueta %></option>
+        <% }) %>
+    </select>
 
-    .card-publicacion img {
-        width: 100%;
-        height: 220px;
-        object-fit: cover;
-        display: block;
-    }
+</div>
 
-    .card-publicacion .autor {
-        padding: 10px;
-        font-weight: bold;
-        color: #333;
-        text-align: center;
-        background: #f7f7f7;
-    }
-</style>
-
-<div class="grid-publicaciones">
+<!-- GRID DE PUBLICACIONES -->
+<div class="dash-publicaciones-grid" id="grid-publicaciones">
 
     <% if (publicaciones.length === 0) { %>
-        <p>No hay publicaciones todavía.</p>
+        <p class="no-publicaciones-msg">No hay publicaciones todavía.</p>
     <% } %>
 
     <% publicaciones.forEach(pub => { %>
-        <div class="card-publicacion" data-id="<%= pub.id_publicacion %>">
-            
-            <!-- Imagen -->
+        <div class="pub-card-vapor"
+             data-id="<%= pub.id_publicacion %>"
+             data-fecha="<%= pub.fecha_publicacion.toISOString().split('T')[0] %>"
+             data-etiquetas="<%= pub.publicacion_etiquetas?.map(e => e.etiqueta).join(',') || '' %>">
+
             <img src="<%= pub.imagen %>" alt="Publicación">
 
-            <!-- Autor -->
-            <div class="autor">@<%= pub.usuarios.nombre %></div>
+            <div class="pub-card-author">
+                @<%= pub.usuarios.nombre %>
+
+                <% if (pub.id_usuario === user.id) { %>
+
+                    <!-- BOTÓN EDITAR -->
+                    <button type="button"
+                            class="btn-edit-small"
+                            onclick="event.stopPropagation(); abrirModalEditar('<%= pub.id_publicacion %>')">
+                        Editar
+                    </button>
+
+                    <!-- BOTÓN ELIMINAR -->
+                    <form action="/publicaciones/<%= pub.id_publicacion %>/eliminar" 
+                          method="POST" 
+                          class="delete-form"
+                          onclick="event.stopPropagation();"
+                          onsubmit="return confirm('¿Seguro que quieres eliminar esta publicación?');">
+                        <button type="submit" class="btn-delete-small">Eliminar</button>
+                    </form>
+
+                <% } %>
+            </div>
 
         </div>
     <% }) %>
@@ -57,12 +66,37 @@
 </div>
 
 <script>
-    // Conectar tarjetas con el modal
-    document.querySelectorAll('.card-publicacion').forEach(card => {
-        card.addEventListener('click', () => {
+    // Abrir modal de lectura al hacer clic en la tarjeta (pero no en los botones)
+    document.querySelectorAll('.pub-card-vapor').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.delete-form')) return;
+
             const id = card.dataset.id;
             cargarPublicacion(id);
             abrirModal();
         });
     });
+
+    // FILTROS
+    const filtroFecha = document.getElementById("filtro-fecha");
+    const filtroEtiqueta = document.getElementById("filtro-etiqueta");
+    const cards = document.querySelectorAll(".pub-card-vapor");
+
+    function aplicarFiltros() {
+        const fecha = filtroFecha.value;
+        const etiqueta = filtroEtiqueta.value.toLowerCase();
+
+        cards.forEach(card => {
+            const cardFecha = card.dataset.fecha;
+            const cardEtiquetas = card.dataset.etiquetas.toLowerCase();
+
+            const coincideFecha = !fecha || cardFecha === fecha;
+            const coincideEtiqueta = !etiqueta || cardEtiquetas.includes(etiqueta);
+
+            card.style.display = (coincideFecha && coincideEtiqueta) ? "block" : "none";
+        });
+    }
+
+    filtroFecha.addEventListener("change", aplicarFiltros);
+    filtroEtiqueta.addEventListener("change", aplicarFiltros);
 </script>

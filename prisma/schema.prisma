@@ -69,4 +69,20 @@ model usuarios {
   usuario_telefonos usuario_telefonos[]
   nick              String?             @unique @db.VarChar(100)
 
+  seguidores        seguidores[] @relation("Seguido")
+  siguiendo         seguidores[] @relation("Seguidor")
+}
+
+
+
+model seguidores {
+  id_seguidor   Int
+  id_seguido    Int
+  fecha         DateTime @default(now())
+
+  seguidor      usuarios @relation("Seguidor", fields: [id_seguidor], references: [id_usuario], onDelete: Cascade)
+  seguido       usuarios @relation("Seguido", fields: [id_seguido], references: [id_usuario], onDelete: Cascade)
+
+  @@id([id_seguidor, id_seguido])
+  @@index([id_seguido])
 }

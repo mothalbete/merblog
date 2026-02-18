@@ -1,0 +1,158 @@
+/* ============================================================
+   LANDING — ESTILOS VAPORWAVE
+   ============================================================ */
+
+/* ===== SECCIONES ===== */
+.landing-section {
+    display: none;
+    padding: 40px 20px;
+    max-width: 900px;
+    margin: auto;
+    animation: fadeIn 0.3s ease;
+}
+
+.landing-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   SIDEBAR LATERAL
+   ============================================================ */
+
+.landing-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    background: rgba(10,10,30,0.85);
+    backdrop-filter: blur(6px);
+    border-right: 1px solid rgba(255,255,255,0.1);
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    z-index: 2000;
+}
+
+.landing-sidebar .landing-link {
+    color: #c2c2ff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 5px;
+    border-radius: 8px;
+}
+
+/* Hover */
+.landing-sidebar .landing-link:hover {
+    color: #00f5ff;
+    text-shadow: 0 0 8px #00f5ff;
+    background: rgba(255,255,255,0.05);
+}
+
+/* ===== PESTAÑA ACTIVA ===== */
+.landing-sidebar .landing-link.active {
+    color: #00f5ff;
+    background: rgba(0,245,255,0.12);
+    text-shadow: 0 0 10px #00f5ff;
+    border-left: 3px solid #00f5ff;
+    padding-left: 12px;
+    animation: neonPulse 1.5s infinite alternate;
+}
+
+/* Animación neon */
+@keyframes neonPulse {
+    from {
+        box-shadow: 0 0 6px rgba(0,245,255,0.4);
+    }
+    to {
+        box-shadow: 0 0 14px rgba(0,245,255,0.9);
+    }
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+.landing-main {
+    margin-left: 240px;
+    padding: 40px 20px;
+}
+
+/* ============================================================
+   INFO
+   ============================================================ */
+
+.info-wrapper {
+    padding: 25px;
+    text-align: center;
+}
+
+.info-text {
+    color: #c2c2ff;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-top: 10px;
+}
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+
+.login-wrapper {
+    padding: 25px;
+    max-width: 450px;
+    margin: auto;
+}
+
+/* ============================================================
+   REGISTER
+   ============================================================ */
+
+.register-wrapper {
+    padding: 25px;
+    max-width: 450px;
+    margin: auto;
+}
+
+/* ============================================================
+   RESPONSIVE — SIDEBAR MÓVIL
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+    .landing-sidebar {
+        width: 180px;
+        transform: translateX(-180px);
+        transition: transform 0.3s ease;
+    }
+
+    .landing-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-toggle {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        background: rgba(10,10,30,0.8);
+        padding: 10px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #00f5ff;
+        font-weight: bold;
+        z-index: 3000;
+        box-shadow: 0 0 10px rgba(0,245,255,0.6);
+    }
+
+    .landing-main {
+        margin-left: 0;
+        padding-top: 60px;
+    }
+}

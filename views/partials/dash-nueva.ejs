@@ -1,25 +1,29 @@
-<h2>Nueva Publicación</h2>
+<div class="vapor-card dash-nueva">
 
-<form action="/publicaciones/nueva" method="POST" enctype="multipart/form-data">
+    <h2 class="vapor-title">Nueva Publicación</h2>
 
-    <label>Título:</label><br>
-    <input type="text" name="titulo" required style="width: 100%;"><br><br>
+    <form action="/publicaciones/nueva" method="POST" enctype="multipart/form-data" class="vapor-form">
 
-    <label>Contenido (texto):</label><br>
-    <textarea name="contenido" required style="width: 100%; height: 120px;"></textarea><br><br>
+        <label for="titulo">Título:</label>
+        <input type="text" id="titulo" name="titulo" required>
 
-    <label>Imagen:</label><br>
-    <input type="file" name="imagen" accept="image/*" required><br><br>
+        <label for="contenido">Contenido (texto):</label>
+        <textarea id="contenido" name="contenido" required></textarea>
 
-    <label>Estado:</label><br>
-    <select name="estado" required>
-        <option value="publicado">Publicado</option>
-        <option value="borrador">Borrador</option>
-    </select><br><br>
+        <label for="imagen">Imagen:</label>
+        <input type="file" id="imagen" name="imagen" accept="image/*" required>
 
-    <label>Etiquetas (separadas por comas):</label><br>
-    <input type="text" name="etiquetas" placeholder="playa, verano, viaje" style="width: 100%;"><br><br>
+        <label for="estado">Estado:</label>
+        <select id="estado" name="estado" required class="vapor-select">
+            <option value="publicado">Publicado</option>
+            <option value="borrador">Borrador</option>
+        </select>
 
-    <button type="submit">Publicar</button>
+        <label for="etiquetas">Etiquetas (separadas por comas):</label>
+        <input type="text" id="etiquetas" name="etiquetas" placeholder="playa, verano, viaje">
 
-</form>
+        <button type="submit" class="btn btn-primary">Publicar</button>
+
+    </form>
+
+</div>

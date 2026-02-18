@@ -1,124 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        /* CABECERA */
-        header {
-            background: #333;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        header .left {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        header .right {
-            text-align: right;
-        }
-
-        /* NAV DE PESTAÑAS */
-        nav {
-            background: #444;
-            display: flex;
-            gap: 20px;
-            padding: 10px 20px;
-        }
-
-        nav a {
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* SECCIONES */
-        .section {
-            display: none;
-            padding: 20px;
-        }
-
-        .active {
-            display: block;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/global.css">
 </head>
 
 <body>
 
     <!-- CABECERA -->
-    <header>
-        <div class="left">📸 MerBlog</div>
+    <header class="dash-header">
+        <div class="dash-header-left">
+            MERBLOG
+        </div>
 
-        <div class="right">
-            <div>Hola, <%= user.username %></div>
-            <div><%= new Date().toLocaleDateString("es-ES") %></div>
-            <a href="/logout" style="color: #ffb3b3;">Cerrar sesión</a>
+        <div class="dash-header-right">
+            <p>@<%= user.username %></p>
+            <a href="/logout" class="dash-logout">Cerrar sesión</a>
         </div>
     </header>
 
-    <!-- PESTAÑAS -->
-    <nav>
-        <a onclick="showSection('publicaciones')">Publicaciones</a>
-        <a onclick="showSection('nueva')">Nueva Publicación</a>
-        <a onclick="showSection('perfil')">Mi Perfil</a>
+    <!-- NAV -->
+    <nav class="dash-nav">
+        <div class="dash-link" onclick="mostrarSeccion('publicaciones')">Publicaciones</div>
+        <div class="dash-link" onclick="mostrarSeccion('perfil')">Mi Perfil</div>
+        <div class="dash-link" onclick="mostrarSeccion('nueva')">Nueva Publicación</div>
     </nav>
 
-    <!-- SECCIONES -->
-    <section id="publicaciones" class="section active">
-        <%- include('partials/dash-publicaciones') %>
+    <!-- PUBLICACIONES -->
+    <section id="publicaciones" class="dash-section active">
+        <%- include("partials/dash-publicaciones") %>
     </section>
 
-    <section id="nueva" class="section">
-        <%- include('partials/dash-nueva') %>
+    <!-- PERFIL -->
+    <section id="perfil" class="dash-section">
+        <%- include("partials/dash-perfil") %>
     </section>
 
-    <section id="perfil" class="section">
-        <%- include('partials/dash-perfil') %>
+    <!-- NUEVA PUBLICACIÓN -->
+    <section id="nueva" class="dash-section">
+        <%- include("partials/dash-nueva") %>
     </section>
 
-    <!-- MODAL PUBLICACIÓN -->
-    <%- include('partials/modal-publicacion') %>
+    <!-- MODAL LECTURA -->
+    <%- include("partials/modal-publicacion") %>
+
+    <!-- MODAL EDITAR -->
+    <%- include("partials/modal-editar-publicacion") %>
 
     <!-- MODAL PERFIL -->
-    <%- include('partials/modal-perfil') %>
+    <%- include("partials/modal-perfil") %>
 
-    <!-- SCRIPT GENERAL -->
     <script>
-        function showSection(id) {
-            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        function mostrarSeccion(id) {
+            document.querySelectorAll('.dash-section').forEach(sec => sec.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            localStorage.setItem("activeDashTab", id);
-        }
-
-        window.addEventListener("DOMContentLoaded", () => {
-            const saved = localStorage.getItem("activeDashTab") || "publicaciones";
-            showSection(saved);
-        });
-
-        /* MODAL PERFIL */
-        function openPerfilModal() {
-            document.getElementById("modalPerfil").style.display = "flex";
-        }
-
-        function closePerfilModal() {
-            document.getElementById("modalPerfil").style.display = "none";
         }
     </script>
 
 </body>
-
 </html>

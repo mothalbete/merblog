@@ -1,0 +1,440 @@
+/* ============================================================
+   DASHBOARD — ESTILOS VAPORWAVE
+   ============================================================ */
+
+/* ===== CABECERA ===== */
+.dash-header {
+    background: linear-gradient(90deg, #ff4fd8, #6b5bff, #00f5ff);
+    padding: 18px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 0 25px rgba(0,0,0,0.7);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.dash-header-left {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 18px;
+    text-shadow: 0 0 8px rgba(0,0,0,0.7);
+}
+
+.dash-header-right {
+    text-align: right;
+    font-size: 14px;
+}
+
+.dash-logout {
+    color: #ffb3ff;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.dash-logout:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px #ff4fd8;
+}
+
+/* ===== NAV DE PESTAÑAS ===== */
+.dash-nav {
+    display: flex;
+    gap: 25px;
+    padding: 15px 25px;
+    background: rgba(10,10,30,0.6);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.dash-link {
+    color: #c2c2ff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.dash-link:hover {
+    color: #00f5ff;
+    text-shadow: 0 0 8px #00f5ff;
+}
+
+/* ===== SECCIONES ===== */
+.dash-section {
+    display: none;
+    padding: 30px;
+}
+
+.dash-section.active {
+    display: block;
+}
+
+/* ============================================================
+   PUBLICACIONES — GRID Y TARJETAS
+   ============================================================ */
+
+.dash-publicaciones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 25px;
+}
+
+.pub-card-vapor {
+    background: rgba(10,10,30,0.9);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+        0 0 15px rgba(255,79,216,0.25),
+        0 0 25px rgba(0,245,255,0.15);
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.pub-card-vapor:hover {
+    transform: scale(1.03);
+    box-shadow:
+        0 0 20px rgba(255,79,216,0.45),
+        0 0 30px rgba(0,245,255,0.35);
+}
+
+.pub-card-vapor img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.pub-card-author {
+    padding: 12px;
+    text-align: center;
+    background: rgba(255,255,255,0.05);
+    color: #ffb3ff;
+    font-weight: bold;
+    text-shadow: 0 0 6px rgba(255,79,216,0.7);
+}
+
+/* ============================================================
+   BOTONES EDITAR / ELIMINAR
+   ============================================================ */
+
+.btn-edit-small {
+    background: transparent;
+    border: 1px solid rgba(0,245,255,0.8);
+    color: #00f5ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    margin-left: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-edit-small:hover {
+    background: rgba(0,245,255,0.15);
+    box-shadow: 0 0 8px rgba(0,245,255,0.7);
+}
+
+.btn-delete-small {
+    background: transparent;
+    border: 1px solid rgba(255,80,120,0.8);
+    color: #ff5078;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    margin-left: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-delete-small:hover {
+    background: rgba(255,80,120,0.15);
+    box-shadow: 0 0 8px rgba(255,80,120,0.7);
+}
+
+/* ============================================================
+   PERFIL — TARJETAS Y GRID
+   ============================================================ */
+
+.dash-perfil {
+    padding: 25px;
+}
+
+.perfil-header-vapor {
+    margin-bottom: 25px;
+}
+
+.perfil-info {
+    color: #c2c2ff;
+    margin-bottom: 8px;
+}
+
+.perfil-subtitle {
+    margin: 20px 0;
+    color: #ffb3ff;
+    font-family: 'Press Start 2P';
+    font-size: 16px;
+}
+
+.mis-publicaciones-grid-vapor {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 25px;
+}
+
+.mi-card-vapor {
+    background: rgba(10,10,30,0.9);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+        0 0 15px rgba(255,79,216,0.25),
+        0 0 25px rgba(0,245,255,0.15);
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.mi-card-vapor:hover {
+    transform: scale(1.03);
+}
+
+.mi-card-vapor img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.mi-card-title {
+    padding: 12px;
+    text-align: center;
+    background: rgba(255,255,255,0.05);
+    color: #ffb3ff;
+    font-weight: bold;
+}
+
+/* ============================================================
+   MODAL PERFIL
+   ============================================================ */
+
+.modal-perfil-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-perfil-card {
+    width: 420px;
+    padding: 25px;
+    animation: modalFade 0.25s ease;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+/* ============================================================
+   MODAL PUBLICACIÓN (LECTURA)
+   ============================================================ */
+
+.modal-pub-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-pub-card {
+    width: 90%;
+    max-width: 1100px;
+    height: 90vh;
+    display: flex;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    animation: modalFade 0.25s ease;
+}
+
+/* Botón cerrar */
+.modal-pub-close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #ffb3ff;
+    text-shadow: 0 0 8px #ff4fd8;
+    z-index: 3000;
+    transition: 0.2s;
+}
+
+.modal-pub-close:hover {
+    color: white;
+}
+
+/* Columna izquierda */
+.modal-pub-left {
+    flex: 1.2;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.modal-pub-img {
+    width: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
+/* Acordeón */
+.modal-acordeon {
+    background: rgba(255,255,255,0.1);
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    color: #ffb3ff;
+    font-weight: bold;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    transition: 0.2s;
+}
+
+.modal-acordeon:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.modal-acordeon-content {
+    max-height: 0;
+    overflow: hidden;
+    background: rgba(0,0,0,0.4);
+    padding: 0 15px;
+    transition: max-height 0.4s ease, padding 0.3s;
+}
+
+.modal-acordeon-content.abierto {
+    max-height: 350px;
+    padding: 15px;
+}
+
+.modal-pub-title {
+    color: #ffb3ff;
+    margin-bottom: 10px;
+    font-family: 'Press Start 2P';
+}
+
+.modal-pub-text {
+    color: #c2c2ff;
+    margin-bottom: 10px;
+}
+
+.modal-pub-meta {
+    color: #c2c2ff;
+    margin-bottom: 8px;
+}
+
+.modal-pub-tags .tag {
+    color: #00f5ff;
+    margin-right: 6px;
+}
+
+/* Columna derecha */
+.modal-pub-right {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-pub-subtitle {
+    color: #ffb3ff;
+    margin-bottom: 10px;
+}
+
+.modal-pub-comments {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.modal-comment {
+    background: rgba(255,255,255,0.05);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    color: #fdfdfd;
+}
+
+/* ============================================================
+   MODAL EDITAR PUBLICACIÓN (NUEVO)
+   ============================================================ */
+
+.modal-editar-card {
+    width: 600px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 25px;
+    border-radius: 16px;
+    animation: modalFade 0.25s ease;
+    position: relative;
+}
+
+.modal-editar-title {
+    text-align: center;
+    color: #ffb3ff;
+    font-family: 'Press Start 2P';
+    margin-bottom: 20px;
+}
+
+.modal-editar-form label {
+    color: #c2c2ff;
+    margin-top: 10px;
+}
+
+.modal-editar-form input,
+.modal-editar-form textarea,
+.modal-editar-form select {
+    margin-bottom: 12px;
+}
+
+/* ============================================================
+   FILTROS VAPORWAVE
+   ============================================================ */
+
+.filtros-vapor {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.filtro-select {
+    background: rgba(10,10,30,0.9);
+    border: 1px solid rgba(0,245,255,0.4);
+    color: #00f5ff;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0,245,255,0.3);
+    transition: 0.2s;
+}
+
+.filtro-select:hover {
+    box-shadow: 0 0 15px rgba(0,245,255,0.6);
+}
+
+/* Animación modal */
+@keyframes modalFade {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}

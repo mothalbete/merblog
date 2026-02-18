@@ -1,29 +1,27 @@
-<h2>Registro</h2>
+<div class="register-wrapper vapor-card">
 
-<% if (errorRegister) { %>
-    <p style="color:red; font-weight:bold;"><%= errorRegister %></p>
-<% } %>
+    <h2 class="vapor-title">Registro</h2>
 
-<form action="/register" method="POST">
-    <label>Nick:</label>
-    <input type="text" name="nick" required>
+    <% if (errorRegister) { %>
+        <p class="error-msg"><%= errorRegister %></p>
+    <% } %>
 
-    <br><br>
+    <form action="/register" method="POST" class="vapor-form">
 
-    <label>Nombre real:</label>
-    <input type="text" name="username" required>
+        <label for="nick">Nick:</label>
+        <input type="text" id="nick" name="nick" required>
 
-    <br><br>
+        <label for="username">Nombre real:</label>
+        <input type="text" id="username" name="username" required>
 
-    <label>Email:</label>
-    <input type="email" name="email" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
 
-    <br><br>
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required>
 
-    <label>Contraseña:</label>
-    <input type="password" name="password" required>
+        <button type="submit" class="btn btn-primary">Crear cuenta</button>
 
-    <br><br>
+    </form>
 
-    <button type="submit">Crear cuenta</button>
-</form>
+</div>

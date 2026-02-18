@@ -1,19 +1,21 @@
-<h2>Iniciar sesión</h2>
+<div class="login-wrapper vapor-card">
 
-<% if (errorLogin) { %>
-    <p style="color:red; font-weight:bold;"><%= errorLogin %></p>
-<% } %>
+    <h2 class="vapor-title">Iniciar sesión</h2>
 
-<form action="/login" method="POST">
-    <label>Nick o Email:</label>
-    <input type="text" name="username" required>
+    <% if (errorLogin) { %>
+        <p class="error-msg"><%= errorLogin %></p>
+    <% } %>
 
-    <br><br>
+    <form action="/login" method="POST" class="vapor-form">
 
-    <label>Contraseña:</label>
-    <input type="password" name="password" required>
+        <label for="username">Nick o Email:</label>
+        <input type="text" id="username" name="username" required>
 
-    <br><br>
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required>
 
-    <button type="submit">Entrar</button>
-</form>
+        <button type="submit" class="btn btn-primary">Entrar</button>
+
+    </form>
+
+</div>

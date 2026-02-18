@@ -65,7 +65,7 @@ function requireLogin(req, res, next) {
 // LANDING
 // ===============================
 app.get("/", (req, res) => {
-  res.render("index", { 
+  res.render("index", {
     errorLogin: null,
     errorRegister: null,
     user: req.session.user || null
@@ -86,7 +86,8 @@ app.get("/dashboard", requireLogin, async (req, res) => {
     const publicaciones = await prisma.publicacion.findMany({
       orderBy: { fecha_publicacion: "desc" },
       include: {
-        usuarios: { select: { nombre: true } }
+        usuarios: { select: { nombre: true } },
+        publicacion_etiquetas: true
       }
     });
 
@@ -100,6 +101,20 @@ app.get("/dashboard", requireLogin, async (req, res) => {
       select: { email: true, biografia: true }
     });
 
+    // FECHAS ÚNICAS
+    const fechasDisponibles = await prisma.publicacion.findMany({
+      select: { fecha_publicacion: true },
+      distinct: ['fecha_publicacion'],
+      orderBy: { fecha_publicacion: 'desc' }
+    });
+
+    // ETIQUETAS ÚNICAS
+    const etiquetasDisponibles = await prisma.publicacion_etiquetas.findMany({
+      select: { etiqueta: true },
+      distinct: ['etiqueta'],
+      orderBy: { etiqueta: 'asc' }
+    });
+
     res.render("dashboard", {
       user: {
         ...req.session.user,
@@ -107,7 +122,9 @@ app.get("/dashboard", requireLogin, async (req, res) => {
         biografia: userData.biografia
       },
       publicaciones,
-      misPublicaciones
+      misPublicaciones,
+      fechasDisponibles,
+      etiquetasDisponibles
     });
 
   } catch (err) {
@@ -133,7 +150,7 @@ app.post("/login", async (req, res) => {
     });
 
     if (!user) {
-      return res.render("index", { 
+      return res.render("index", {
         errorLogin: "Credenciales incorrectas",
         errorRegister: null,
         user: null
@@ -143,15 +160,15 @@ app.post("/login", async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, user["contraseña"]);
 
     if (!passwordMatch) {
-      return res.render("index", { 
+      return res.render("index", {
         errorLogin: "Credenciales incorrectas",
         errorRegister: null,
         user: null
       });
     }
 
-    req.session.user = { 
-      id: user.id_usuario, 
+    req.session.user = {
+      id: user.id_usuario,
       username: user.nick
     };
 
@@ -159,7 +176,7 @@ app.post("/login", async (req, res) => {
 
   } catch (err) {
     console.error("ERROR EN LOGIN:", err);
-    res.render("index", { 
+    res.render("index", {
       errorLogin: "Error interno",
       errorRegister: null,
       user: null
@@ -174,7 +191,7 @@ app.post("/register", async (req, res) => {
   const { nick, username, email, password } = req.body;
 
   if (!nick || !username || !email || !password) {
-    return res.render("index", { 
+    return res.render("index", {
       errorRegister: "Todos los campos son obligatorios",
       errorLogin: null,
       user: null
@@ -185,7 +202,7 @@ app.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.usuarios.create({
-      data: { 
+      data: {
         nick: nick,
         nombre: username,
         email: email,
@@ -204,14 +221,14 @@ app.post("/register", async (req, res) => {
     console.error("ERROR REGISTER:", err);
 
     if (err.code === "P2002") {
-      return res.render("index", { 
+      return res.render("index", {
         errorRegister: "El nick o email ya existe",
         errorLogin: null,
         user: null
       });
     }
 
-    res.render("index", { 
+    res.render("index", {
       errorRegister: "Error al registrar usuario",
       errorLogin: null,
       user: null
@@ -269,31 +286,38 @@ app.post("/publicaciones/nueva", requireLogin, upload.single("imagen"), async (r
 });
 
 // ===============================
-// CREAR COMENTARIO
+// ELIMINAR PUBLICACIÓN
 // ===============================
-app.post("/comentarios/:id", requireLogin, async (req, res) => {
+app.post("/publicaciones/:id/eliminar", requireLogin, async (req, res) => {
   const id_publicacion = parseInt(req.params.id);
-  const { texto } = req.body;
 
   try {
-    await prisma.comentario.create({
-      data: {
-        texto,
-        id_usuario: req.session.user.id,
-        id_publicacion
-      }
+    const pub = await prisma.publicacion.findUnique({
+      where: { id_publicacion }
+    });
+
+    if (!pub) {
+      return res.status(404).send("Publicación no encontrada");
+    }
+
+    if (pub.id_usuario !== req.session.user.id) {
+      return res.status(403).send("No tienes permiso para eliminar esta publicación");
+    }
+
+    await prisma.publicacion.delete({
+      where: { id_publicacion }
     });
 
     res.redirect("/dashboard");
 
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Error al enviar comentario");
+    console.error("ERROR ELIMINANDO PUBLICACIÓN:", err);
+    res.status(500).send("Error al eliminar la publicación");
   }
 });
 
 // ===============================
-// OBTENER PUBLICACIÓN PARA MODAL
+// OBTENER PUBLICACIÓN PARA MODAL (LECTURA)
 // ===============================
 app.get("/publicaciones/:id", requireLogin, async (req, res) => {
   const id = parseInt(req.params.id);
@@ -328,6 +352,7 @@ app.get("/publicaciones/:id", requireLogin, async (req, res) => {
       autor: pub.usuarios.nombre,
       fecha: pub.fecha_publicacion,
       visitas: pub.numero_visitas,
+      propietario: pub.id_usuario === req.session.user.id,
       etiquetas: pub.publicacion_etiquetas.map(e => e.etiqueta),
       comentarios: pub.comentario.map(c => ({
         autor: c.usuarios.nombre,
@@ -345,11 +370,120 @@ app.get("/publicaciones/:id", requireLogin, async (req, res) => {
 });
 
 // ===============================
-// SERVIDOR
+// OBTENER DATOS PARA EDITAR PUBLICACIÓN
 // ===============================
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Servidor funcionando en http://localhost:${PORT}`);
+app.get("/publicaciones/:id/editar", requireLogin, async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    const pub = await prisma.publicacion.findUnique({
+      where: { id_publicacion: id },
+      include: {
+        publicacion_etiquetas: true
+      }
+    });
+
+    if (!pub) {
+      return res.status(404).json({ error: "Publicación no encontrada" });
+    }
+
+    if (pub.id_usuario !== req.session.user.id) {
+      return res.status(403).json({ error: "No tienes permiso para editar esta publicación" });
+    }
+
+    res.json({
+      id: pub.id_publicacion,
+      titulo: pub.titulo,
+      contenido: pub.contenido,
+      estado: pub.estado,
+      etiquetas: pub.publicacion_etiquetas.map(e => e.etiqueta)
+    });
+
+  } catch (err) {
+    console.error("ERROR OBTENIENDO PUBLICACIÓN PARA EDITAR:", err);
+    res.status(500).json({ error: "Error interno" });
+  }
+});
+
+// ===============================
+// EDITAR PUBLICACIÓN
+// ===============================
+app.post("/publicaciones/:id/editar", requireLogin, upload.single("imagen"), async (req, res) => {
+  const id = parseInt(req.params.id);
+  const { titulo, contenido, estado, etiquetas } = req.body;
+
+  try {
+    const pub = await prisma.publicacion.findUnique({
+      where: { id_publicacion: id }
+    });
+
+    if (!pub) {
+      return res.status(404).send("Publicación no encontrada");
+    }
+
+    if (pub.id_usuario !== req.session.user.id) {
+      return res.status(403).send("No tienes permiso para editar esta publicación");
+    }
+
+    const nuevaImagen = req.file ? "/uploads/" + req.file.filename : pub.imagen;
+
+    await prisma.publicacion.update({
+      where: { id_publicacion: id },
+      data: {
+        titulo,
+        contenido,
+        estado,
+        imagen: nuevaImagen
+      }
+    });
+
+    await prisma.publicacion_etiquetas.deleteMany({
+      where: { id_publicacion: id }
+    });
+
+    if (etiquetas && etiquetas.trim() !== "") {
+      const lista = etiquetas.split(",").map(e => e.trim());
+
+      for (let et of lista) {
+        await prisma.publicacion_etiquetas.create({
+          data: {
+            id_publicacion: id,
+            etiqueta: et
+          }
+        });
+      }
+    }
+
+    res.redirect("/dashboard");
+
+  } catch (err) {
+    console.error("ERROR EDITANDO PUBLICACIÓN:", err);
+    res.status(500).send("Error al editar la publicación");
+  }
+});
+
+// ===============================
+// CREAR COMENTARIO
+// ===============================
+app.post("/comentarios/:id", requireLogin, async (req, res) => {
+  const id_publicacion = parseInt(req.params.id);
+  const { texto } = req.body;
+
+  try {
+    await prisma.comentario.create({
+      data: {
+        texto,
+        id_usuario: req.session.user.id,
+        id_publicacion
+      }
+    });
+
+    res.redirect("/dashboard");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error al enviar comentario");
+  }
 });
 
 // ===============================
@@ -368,7 +502,6 @@ app.post("/perfil/editar", requireLogin, async (req, res) => {
       }
     });
 
-    // Actualizamos la sesión con el nuevo nick
     req.session.user.username = updated.nick;
 
     res.redirect("/dashboard");
@@ -389,4 +522,12 @@ app.post("/perfil/editar", requireLogin, async (req, res) => {
       errorPerfil: msg
     });
   }
+});
+
+// ===============================
+// SERVIDOR
+// ===============================
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Servidor funcionando en http://localhost:${PORT}`);
 });

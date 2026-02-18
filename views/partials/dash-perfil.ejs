@@ -1,103 +1,56 @@
-<style>
-    .perfil-container {
-        max-width: 800px;
-        margin: auto;
-    }
-
-    .perfil-header {
-        background: #f3f3f3;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 25px;
-    }
-
-    .perfil-header h2 {
-        margin: 0;
-    }
-
-    .perfil-header p {
-        margin: 5px 0;
-        color: #555;
-    }
-
-    .btn-editar {
-        display: inline-block;
-        margin-top: 10px;
-        padding: 8px 15px;
-        background: #333;
-        color: white;
-        border-radius: 5px;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    /* GRID DE PUBLICACIONES DEL USUARIO */
-    .mis-publicaciones-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 20px;
-    }
-
-    .mi-card {
-        background: #fff;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-        cursor: pointer;
-        transition: transform 0.2s ease;
-    }
-
-    .mi-card:hover {
-        transform: scale(1.03);
-    }
-
-    .mi-card img {
-        width: 100%;
-        height: 220px;
-        object-fit: cover;
-    }
-
-    .mi-card .titulo {
-        padding: 10px;
-        font-weight: bold;
-        text-align: center;
-        background: #f7f7f7;
-    }
-</style>
-
-<div class="perfil-container">
+<div class="dash-perfil vapor-card">
 
     <!-- MENSAJE DE ERROR DE PERFIL -->
     <% if (typeof errorPerfil !== "undefined" && errorPerfil) { %>
-        <p style="color:red; font-weight:bold; margin-bottom:15px;">
+        <p class="error-msg">
             <%= errorPerfil %>
         </p>
     <% } %>
 
     <!-- DATOS DEL USUARIO -->
-    <div class="perfil-header">
-        <h2>@<%= user.username %></h2>
-        <p>Email: <%= user.email || "No especificado" %></p>
-        <p>Biografía: <%= user.biografia || "Sin biografía" %></p>
+    <div class="perfil-header-vapor">
+        <h2 class="vapor-title">@<%= user.username %></h2>
 
-        <!-- BOTÓN PARA ABRIR EL MODAL -->
-        <a class="btn-editar" onclick="openPerfilModal()">Editar perfil</a>
+        <p class="perfil-info">Email: <span><%= user.email || "No especificado" %></span></p>
+        <p class="perfil-info">Biografía: <span><%= user.biografia || "Sin biografía" %></span></p>
+
+        <button class="btn btn-primary btn-editar-perfil" onclick="openPerfilModal()">
+            Editar perfil
+        </button>
     </div>
 
-    <h3>Mis publicaciones</h3>
+    <h3 class="perfil-subtitle">Mis publicaciones</h3>
 
-    <div class="mis-publicaciones-grid">
+    <div class="mis-publicaciones-grid-vapor">
 
         <% if (misPublicaciones.length === 0) { %>
-            <p>No has publicado nada todavía.</p>
+            <p class="perfil-no-pubs">No has publicado nada todavía.</p>
         <% } %>
 
         <% misPublicaciones.forEach(pub => { %>
-            <div class="mi-card" data-id="<%= pub.id_publicacion %>">
+            <div class="mi-card-vapor" data-id="<%= pub.id_publicacion %>">
 
                 <img src="<%= pub.imagen %>" alt="Mi publicación">
 
-                <div class="titulo"><%= pub.titulo %></div>
+                <div class="mi-card-title">
+                    <%= pub.titulo %>
+
+                    <!-- BOTÓN EDITAR -->
+                    <button type="button"
+                            class="btn-edit-small"
+                            onclick="event.stopPropagation(); abrirModalEditar('<%= pub.id_publicacion %>')">
+                        Editar
+                    </button>
+
+                    <!-- BOTÓN ELIMINAR -->
+                    <form action="/publicaciones/<%= pub.id_publicacion %>/eliminar"
+                          method="POST"
+                          class="delete-form"
+                          onclick="event.stopPropagation();"
+                          onsubmit="return confirm('¿Seguro que quieres eliminar esta publicación?');">
+                        <button type="submit" class="btn-delete-small">Eliminar</button>
+                    </form>
+                </div>
 
             </div>
         <% }) %>
@@ -107,8 +60,8 @@
 </div>
 
 <script>
-    // Conectar las tarjetas del perfil al modal de publicaciones
-    document.querySelectorAll('.mi-card').forEach(card => {
+    // Conectar las tarjetas del perfil al modal de lectura
+    document.querySelectorAll('.mi-card-vapor').forEach(card => {
         card.addEventListener('click', () => {
             const id = card.dataset.id;
             cargarPublicacion(id);

@@ -1,0 +1,73 @@
+<!-- OVERLAY EDITAR -->
+<div id="modal-editar-bg" class="modal-pub-overlay" style="display:none;">
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div id="modal-editar" class="modal-editar-card vapor-card">
+
+        <!-- BOTÓN CERRAR -->
+        <div class="modal-pub-close" onclick="cerrarModalEditar()">✖</div>
+
+        <h2 class="modal-editar-title">Editar Publicación</h2>
+
+        <!-- FORMULARIO -->
+        <form id="form-editar-publicacion"
+              method="POST"
+              enctype="multipart/form-data"
+              class="vapor-form modal-editar-form">
+
+            <label for="editar-titulo">Título:</label>
+            <input type="text" id="editar-titulo" name="titulo" required>
+
+            <label for="editar-contenido">Contenido:</label>
+            <textarea id="editar-contenido" name="contenido" required></textarea>
+
+            <label for="editar-estado">Estado:</label>
+            <select id="editar-estado" name="estado" class="vapor-select">
+                <option value="publicado">Publicado</option>
+                <option value="borrador">Borrador</option>
+            </select>
+
+            <label for="editar-etiquetas">Etiquetas (separadas por comas):</label>
+            <input type="text" id="editar-etiquetas" name="etiquetas">
+
+            <label for="editar-imagen">Cambiar imagen (opcional):</label>
+            <input type="file" id="editar-imagen" name="imagen" accept="image/*">
+
+            <button type="submit" class="btn btn-primary" style="margin-top:15px;">
+                Guardar cambios
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+<script>
+    function abrirModalEditar(id) {
+        document.getElementById("modal-editar-bg").style.display = "flex";
+
+        // Cargar datos actuales
+        fetch(`/publicaciones/${id}/editar`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("editar-titulo").value = data.titulo;
+                document.getElementById("editar-contenido").value = data.contenido;
+                document.getElementById("editar-estado").value = data.estado;
+                document.getElementById("editar-etiquetas").value = data.etiquetas.join(", ");
+
+                // Establecer acción del formulario
+                document.getElementById("form-editar-publicacion").action =
+                    `/publicaciones/${id}/editar`;
+            });
+    }
+
+    function cerrarModalEditar() {
+        document.getElementById("modal-editar-bg").style.display = "none";
+    }
+
+    // Cerrar modal haciendo clic fuera
+    window.addEventListener("click", function (e) {
+        const fondo = document.getElementById("modal-editar-bg");
+        if (e.target === fondo) cerrarModalEditar();
+    });
+</script>
