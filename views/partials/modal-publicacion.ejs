@@ -87,7 +87,8 @@
         document.getElementById("modal-img").src = data.imagen;
         document.getElementById("modal-titulo").textContent = data.titulo;
         document.getElementById("modal-contenido-texto").textContent = data.contenido;
-        document.getElementById("modal-autor").textContent = data.autor;
+        document.getElementById("modal-autor").innerHTML =
+            `<a class="usuario-link" href="/perfil-publico/${data.id_usuario}">@${data.autor}</a>`;
         document.getElementById("modal-fecha").textContent = new Date(data.fecha).toLocaleString();
         document.getElementById("modal-visitas").textContent = data.visitas;
 
@@ -109,7 +110,9 @@
             let html = "";
             data.comentarios.forEach(function (c) {
                 html += '<div class="modal-comment">';
-                html += '<strong>@' + c.autor + '</strong>';
+
+                // NOMBRE CLICABLE → PERFIL PÚBLICO
+                html += '<strong><a class="usuario-link" href="/perfil-publico/' + c.id_usuario + '">@' + c.autor + '</a></strong>';
 
                 // BOTÓN SEGUIR EN COMENTARIOS
                 if (!c.esAutor && !c.yoSoyEl) {
@@ -124,6 +127,8 @@
             });
             contComentarios.innerHTML = html;
         }
+
+
 
         // FORMULARIO
         document.getElementById("modal-form").action = "/comentarios/" + id;

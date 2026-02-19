@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil de <%= usuario.nombre %></title>
+
+    <!-- Tus estilos -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body>
+
+<header class="dash-header">
+    <div class="dash-header-left">MERBLOG</div>
+    <div class="dash-header-right">
+        <a href="/dashboard" class="dash-logout">Volver</a>
+    </div>
+</header>
+
+<main class="main-wrapper dash-perfil">
+
+    <!-- =============================== -->
+    <!-- CABECERA DEL PERFIL -->
+    <!-- =============================== -->
+    <h1 class="vapor-title">@<%= usuario.nombre %></h1>
+
+    <p class="perfil-info"><%= usuario.biografia || "Sin biografía" %></p>
+
+    <p class="perfil-info">
+        Seguidores: <%= usuario.seguidores.length %> ·
+        Siguiendo: <%= usuario.siguiendo.length %>
+    </p>
+
+    <% if (!esYo) { %>
+        <% if (yoLeSigo) { %>
+            <button class="btn-siguiendo-small siguiendo-btn" data-user="<%= usuario.id_usuario %>">Siguiendo</button>
+        <% } else { %>
+            <button class="btn-seguir-small seguir-btn" data-user="<%= usuario.id_usuario %>">Seguir</button>
+        <% } %>
+    <% } %>
+
+    <!-- =============================== -->
+    <!-- PUBLICACIONES DEL USUARIO -->
+    <!-- =============================== -->
+    <h2 class="perfil-subtitle">Publicaciones</h2>
+
+    <div class="mis-publicaciones-grid-vapor">
+
+        <% if (usuario.publicacion.length === 0) { %>
+            <p>No hay publicaciones todavía.</p>
+        <% } %>
+
+        <% usuario.publicacion.forEach(pub => { %>
+            <div class="mi-card-vapor pub-card-vapor" data-id="<%= pub.id_publicacion %>">
+                <img src="<%= pub.imagen %>" alt="Publicación">
+
+                <div class="mi-card-title">
+                    <%= pub.titulo %><br>
+                    <small>
+                        <%= pub.fecha_publicacion.toLocaleDateString("es-ES") %> ·
+                        👁 <%= pub.numero_visitas %>
+                    </small>
+                </div>
+            </div>
+        <% }) %>
+
+    </div>
+
+</main>
+
+<!-- =============================== -->
+<!-- MODAL DE PUBLICACIÓN (INCLUIDO) -->
+<!-- =============================== -->
+<%- include("partials/modal-publicacion") %>
+
+<!-- =============================== -->
+<!-- SCRIPTS NECESARIOS -->
+<!-- =============================== -->
+<script src="/js/dashboard.js"></script>
+
+</body>
+</html>

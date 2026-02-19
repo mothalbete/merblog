@@ -4,13 +4,18 @@ const router = express.Router();
 const { requireLogin } = require("../middleware/auth");
 const { editarPerfil } = require("../controllers/perfil.controller");
 
+// 👉 IMPORTANTE: Prisma estaba faltando
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+
 // ===============================
 // EDITAR PERFIL
 // ===============================
 router.post("/perfil/editar", requireLogin, editarPerfil);
 
-module.exports = router;
-
+// ===============================
+// PERFIL PÚBLICO (JSON)
+// ===============================
 router.get("/usuario-publico/:id", requireLogin, async (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -52,7 +57,7 @@ router.get("/usuario-publico/:id", requireLogin, async (req, res) => {
             bio: user.biografia,
             seguidores: user.seguidores.length,
             seguidos: user.siguiendo.length,
-            publicaciones: user.publicacion,   // 👈 nombre correcto
+            publicaciones: user.publicacion,
             yoLeSigo,
             id_usuario: id
         });
@@ -63,4 +68,49 @@ router.get("/usuario-publico/:id", requireLogin, async (req, res) => {
     }
 });
 
+// ===============================
+// PERFIL PÚBLICO (PÁGINA HTML)
+// ===============================
+router.get("/perfil-publico/:id", requireLogin, async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const yo = req.session.user.id;
 
+        const user = await prisma.usuarios.findUnique({
+            where: { id_usuario: id },
+            select: {
+                id_usuario: true,
+                nombre: true,
+                biografia: true,
+                seguidores: { select: { id_seguidor: true } },
+                siguiendo: { select: { id_seguido: true } },
+                publicacion: {
+                    select: {
+                        id_publicacion: true,
+                        imagen: true,
+                        titulo: true,
+                        fecha_publicacion: true,
+                        numero_visitas: true
+                    },
+                    orderBy: { fecha_publicacion: "desc" }
+                }
+            }
+        });
+
+        if (!user) return res.status(404).send("Usuario no encontrado");
+
+        const yoLeSigo = user.seguidores.some(s => s.id_seguidor === yo);
+
+        res.render("perfil-publico", {
+            usuario: user,
+            yoLeSigo,
+            esYo: yo === id
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error interno del servidor");
+    }
+});
+
+module.exports = router;

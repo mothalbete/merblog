@@ -1,19 +1,50 @@
 <!-- FILTROS -->
 <div class="filtros-vapor">
 
+    <!-- ============================
+         FECHAS ÚNICAS
+    ============================ -->
+    <%
+        const fechasUnicas = [];
+
+        fechasDisponibles.forEach(f => {
+            const fecha = f.fecha_publicacion.toISOString().split('T')[0];
+            if (!fechasUnicas.includes(fecha)) {
+                fechasUnicas.push(fecha);
+            }
+        });
+
+        fechasUnicas.sort((a, b) => new Date(b) - new Date(a));
+    %>
+
     <select id="filtro-fecha" class="filtro-select">
         <option value="">Todas las fechas</option>
-        <% fechasDisponibles.forEach(f => { %>
-            <option value="<%= f.fecha_publicacion.toISOString().split('T')[0] %>">
-                <%= f.fecha_publicacion.toLocaleDateString("es-ES") %>
+        <% fechasUnicas.forEach(fecha => { %>
+            <option value="<%= fecha %>">
+                <%= new Date(fecha).toLocaleDateString("es-ES") %>
             </option>
         <% }) %>
     </select>
 
+    <!-- ============================
+         ETIQUETAS ÚNICAS
+    ============================ -->
+    <%
+        const etiquetasUnicas = [];
+
+        etiquetasDisponibles.forEach(e => {
+            if (!etiquetasUnicas.includes(e.etiqueta)) {
+                etiquetasUnicas.push(e.etiqueta);
+            }
+        });
+
+        etiquetasUnicas.sort();
+    %>
+
     <select id="filtro-etiqueta" class="filtro-select">
         <option value="">Todas las etiquetas</option>
-        <% etiquetasDisponibles.forEach(e => { %>
-            <option value="<%= e.etiqueta %>"><%= e.etiqueta %></option>
+        <% etiquetasUnicas.forEach(et => { %>
+            <option value="<%= et %>"><%= et %></option>
         <% }) %>
     </select>
 
@@ -26,7 +57,7 @@
         <p class="no-publicaciones-msg">No hay publicaciones todavía.</p>
     <% } %>
 
-    <% publicaciones.forEach(pub => { 
+    <% publicaciones.forEach(pub => {
 
         let seguidores = [];
         if (pub.usuarios && pub.usuarios.seguidores) {
@@ -38,36 +69,32 @@
         const etiquetasStr = pub.publicacion_etiquetas
             ? pub.publicacion_etiquetas.map(e => e.etiqueta).join(',')
             : "";
-
     %>
 
         <div class="pub-card-vapor"
-             data-id="<%= pub.id_publicacion %>"
-             data-fecha="<%= pub.fecha_publicacion.toISOString().split('T')[0] %>"
-             data-etiquetas="<%= etiquetasStr %>">
+            data-id="<%= pub.id_publicacion %>"
+            data-fecha="<%= pub.fecha_publicacion.toISOString().split('T')[0] %>"
+            data-etiquetas="<%= etiquetasStr %>">
 
             <img src="<%= pub.imagen %>" alt="Publicación">
 
             <div class="pub-card-author">
 
-                <!-- NOMBRE DEL AUTOR → ABRE MODAL-USUARIO -->
-                <span class="usuario-link"
-                      data-user="<%= pub.id_usuario %>">
+                <!-- NOMBRE DEL AUTOR → ABRE PERFIL PÚBLICO -->
+                <a class="usuario-link" href="/perfil-publico/<%= pub.id_usuario %>">
                     @<%= pub.usuarios.nombre %>
-                </span>
+                </a>
 
                 <span class="pub-visitas">👁 <%= pub.numero_visitas %></span>
 
                 <% if (pub.id_usuario !== user.id) { %>
 
                     <% if (!yaSigo) { %>
-                        <button class="btn-seguir-small seguir-btn"
-                                data-user="<%= pub.id_usuario %>">
+                        <button class="btn-seguir-small seguir-btn" data-user="<%= pub.id_usuario %>">
                             Seguir
                         </button>
                     <% } else { %>
-                        <button class="btn-siguiendo-small siguiendo-btn"
-                                data-user="<%= pub.id_usuario %>">
+                        <button class="btn-siguiendo-small siguiendo-btn" data-user="<%= pub.id_usuario %>">
                             Siguiendo
                         </button>
                     <% } %>
@@ -76,16 +103,14 @@
 
                 <% if (pub.id_usuario === user.id) { %>
 
-                    <button type="button"
-                            class="btn-edit-small edit-btn"
-                            data-id="<%= pub.id_publicacion %>">
+                    <button type="button" class="btn-edit-small edit-btn"
+                        data-id="<%= pub.id_publicacion %>">
                         Editar
                     </button>
 
-                    <form action="/publicaciones/<%= pub.id_publicacion %>/eliminar" 
-                          method="POST" 
-                          class="delete-form"
-                          onsubmit="return confirm('¿Seguro que quieres eliminar esta publicación?');">
+                    <form action="/publicaciones/<%= pub.id_publicacion %>/eliminar"
+                        method="POST" class="delete-form"
+                        onsubmit="return confirm('¿Seguro que quieres eliminar esta publicación?');">
                         <button type="submit" class="btn-delete-small">Eliminar</button>
                     </form>
 
@@ -113,16 +138,6 @@
 
             cargarPublicacion(card.dataset.id);
             abrirModal();
-        });
-    });
-
-    // ============================
-    // ABRIR MODAL-USUARIO
-    // ============================
-    document.querySelectorAll('.usuario-link').forEach(link => {
-        link.addEventListener('click', e => {
-            e.stopPropagation();
-            cargarUsuario(link.dataset.user);
         });
     });
 

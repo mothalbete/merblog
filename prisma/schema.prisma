@@ -73,8 +73,6 @@ model usuarios {
   siguiendo         seguidores[] @relation("Seguidor")
 }
 
-
-
 model seguidores {
   id_seguidor   Int
   id_seguido    Int

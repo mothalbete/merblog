@@ -101,7 +101,6 @@ function cargarPublicacion(id) {
             }
 
             activarBotonesSeguir();
-            activarLinksUsuario(); // 👈 IMPORTANTE
         });
 }
 
@@ -143,7 +142,6 @@ function activarBotonesSeguir() {
                         btn.dispatchEvent(new Event("mouseleave"));
 
                         activarBotonesSeguir();
-                        activarLinksUsuario();
                     }
                 });
         };
@@ -187,26 +185,13 @@ function activarBotonesSeguir() {
                         btn.dispatchEvent(new Event("mouseleave"));
 
                         activarBotonesSeguir();
-                        activarLinksUsuario();
                     }
                 });
         };
     });
 }
 
-// ===============================
-// ACTIVAR LINKS DE USUARIO
-// ===============================
 
-function activarLinksUsuario() {
-    document.querySelectorAll(".usuario-link").forEach(link => {
-        link.addEventListener("click", e => {
-            e.preventDefault();
-            e.stopPropagation();
-            cargarUsuario(link.dataset.user);
-        });
-    });
-}
 
 // ===============================
 // MODAL EDITAR PUBLICACIÓN
@@ -298,59 +283,11 @@ function activarFiltros() {
 
 activarFiltros();
 
-// ===============================
-// MODAL-USUARIO (PERFIL PÚBLICO)
-// ===============================
 
-function abrirUsuario() {
-    document.getElementById("modal-usuario-bg").style.display = "flex";
-}
 
-function cerrarUsuario() {
-    document.getElementById("modal-usuario-bg").style.display = "none";
-}
-
-document.getElementById("modal-usuario-close").onclick = cerrarUsuario;
-
-function cargarUsuario(id) {
-    fetch(`/usuario-publico/${id}`)
-        .then(r => r.json())
-        .then(data => {
-
-            document.getElementById("usuario-nombre").textContent = data.nombre;
-            document.getElementById("usuario-bio").textContent = data.bio || "Sin biografía";
-
-            document.getElementById("usuario-seguidores").textContent =
-                `Seguidores: ${data.seguidores}`;
-
-            document.getElementById("usuario-seguidos").textContent =
-                `Seguidos: ${data.seguidos}`;
-
-            const cont = document.getElementById("usuario-btn-container");
-            cont.innerHTML = "";
-
-            if (data.yoLeSigo) {
-                cont.innerHTML = `<button class="btn-siguiendo-small siguiendo-btn" data-user="${data.id_usuario}">Siguiendo</button>`;
-            } else {
-                cont.innerHTML = `<button class="btn-seguir-small seguir-btn" data-user="${data.id_usuario}">Seguir</button>`;
-            }
-
-            const pubCont = document.getElementById("usuario-publicaciones");
-            pubCont.innerHTML = "";
-
-            data.publicaciones.forEach(p => {
-                pubCont.innerHTML += `<img src="${p.imagen}">`;
-            });
-
-            activarBotonesSeguir();
-            activarLinksUsuario();
-            abrirUsuario();
-        });
-}
 
 // ===============================
 // ACTIVAR BOTONES DE SEGUIR AL CARGAR
 // ===============================
 
 activarBotonesSeguir();
-activarLinksUsuario();
