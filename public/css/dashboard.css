@@ -123,6 +123,33 @@
     opacity: 0.8;
 }
 
+.pub-card-vapor {
+    position: relative;
+    overflow: hidden;
+}
+
+.pub-card-title-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.65);
+    color: white;
+    font-size: 14px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: all 0.25s ease;
+    pointer-events: none;
+}
+
+.pub-card-vapor:hover .pub-card-title-hover {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
 /* ============================================================
    BOTONES EDITAR / ELIMINAR
    ============================================================ */
@@ -289,158 +316,8 @@
     margin-top: 15px;
 }
 
-/* ============================================================
-   MODAL PUBLICACIÓN (LECTURA)
-   ============================================================ */
 
-.modal-pub-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(6px);
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-}
 
-.modal-pub-card {
-    width: 90%;
-    max-width: 1100px;
-    height: 90vh;
-    display: flex;
-    border-radius: 16px;
-    overflow: hidden;
-    position: relative;
-    animation: modalFade 0.25s ease;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-/* Botón cerrar */
-.modal-pub-close {
-    position: absolute;
-    top: 12px;
-    right: 18px;
-    font-size: 24px;
-    cursor: pointer;
-    color: #ffb3ff;
-    text-shadow: 0 0 8px #ff4fd8;
-    z-index: 3000;
-    transition: 0.2s;
-}
-
-.modal-pub-close:hover {
-    color: white;
-}
-
-/* Columna izquierda */
-.modal-pub-left {
-    flex: 1.2;
-    background: #000;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
-
-.modal-pub-img {
-    width: 100%;
-    object-fit: contain;
-    background: #000;
-}
-
-/* Acordeón */
-.modal-acordeon {
-    background: rgba(255,255,255,0.1);
-    padding: 12px;
-    text-align: center;
-    cursor: pointer;
-    color: #ffb3ff;
-    font-weight: bold;
-    border-top: 1px solid rgba(255,255,255,0.2);
-    transition: 0.2s;
-}
-
-.modal-acordeon:hover {
-    background: rgba(255,255,255,0.2);
-}
-
-.modal-acordeon-content {
-    max-height: 0;
-    overflow: hidden;
-    background: rgba(0,0,0,0.4);
-    padding: 0 15px;
-    transition: max-height 0.4s ease, padding 0.3s;
-}
-
-.modal-acordeon-content.abierto {
-    max-height: 1000px;
-    padding: 15px;
-}
-
-.modal-pub-title {
-    color: #ffb3ff;
-    margin-bottom: 10px;
-    font-family: 'Press Start 2P';
-}
-
-.modal-pub-text {
-    color: #c2c2ff;
-    margin-bottom: 10px;
-}
-
-.modal-pub-meta {
-    color: #c2c2ff;
-    margin-bottom: 8px;
-}
-
-.modal-pub-tags .tag {
-    color: #00f5ff;
-    margin-right: 6px;
-}
-
-/* Columna derecha */
-.modal-pub-right {
-    flex: 1;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-}
-
-.modal-pub-subtitle {
-    color: #ffb3ff;
-    margin-bottom: 10px;
-}
-
-.modal-pub-comments {
-    flex: 1;
-    overflow-y: auto;
-    margin-bottom: 15px;
-}
-
-.modal-comment {
-    background: rgba(255,255,255,0.05);
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    color: #fdfdfd;
-}
-
-/* Scrollbar vaporwave en modales */
-.modal-pub-left::-webkit-scrollbar,
-.modal-pub-right::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-pub-left::-webkit-scrollbar-thumb,
-.modal-pub-right::-webkit-scrollbar-thumb {
-    background: #6b5bff;
-    border-radius: 10px;
-}
-
-.modal-pub-left::-webkit-scrollbar-track,
-.modal-pub-right::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.05);
-}
 
 /* ============================================================
    MODAL EDITAR PUBLICACIÓN
@@ -576,3 +453,23 @@
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
 }
+
+/* ============================================================
+   MODO MÓVIL — TÍTULO SIEMPRE VISIBLE EN LAS TARJETAS
+   ============================================================ */
+@media (max-width: 768px) {
+
+    /* El título siempre visible */
+    .pub-card-title-hover {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+        pointer-events: auto;
+    }
+
+    /* Evitar que el hover lo oculte */
+    .pub-card-vapor:hover .pub-card-title-hover {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+}
+

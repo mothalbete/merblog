@@ -16,10 +16,11 @@ exports.crearComentario = async (req, res) => {
       }
     });
 
-    res.redirect("/dashboard");
+    // 🔥 Respuesta JSON para AJAX (no recarga la página)
+    res.json({ ok: true });
 
   } catch (err) {
     console.error("ERROR CREANDO COMENTARIO:", err);
-    res.status(500).send("Error al enviar comentario");
+    res.status(500).json({ error: "Error al enviar comentario" });
   }
 };

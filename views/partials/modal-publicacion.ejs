@@ -5,53 +5,60 @@
 
         <div class="modal-pub-close" onclick="cerrarModal()">✖</div>
 
-        <!-- IZQUIERDA -->
-        <div class="modal-pub-left">
+        <!-- CONTENEDOR GENERAL (NECESARIO PARA MÓVIL) -->
+        <div class="modal-pub-inner">
 
-            <img id="modal-img" src="" alt="Imagen" class="modal-pub-img">
+            <!-- BLOQUE SUPERIOR (IMAGEN + ACORDEÓN) -->
+            <div class="modal-pub-top">
 
-            <!-- ACCIONES (EDITAR / ELIMINAR / SEGUIR) -->
-            <div id="modal-actions" style="padding: 10px; text-align:center;"></div>
+                <img id="modal-img" src="" alt="Imagen" class="modal-pub-img">
 
-            <div class="modal-acordeon" onclick="toggleAcordeon()">
-                Información de la publicación ⯆
-            </div>
+                <div id="modal-actions" class="modal-actions"></div>
 
-            <div id="acordeon-contenido" class="modal-acordeon-content">
-                <h2 id="modal-titulo" class="modal-pub-title"></h2>
+                <div class="modal-acordeon" onclick="toggleAcordeon()">
+                    Información de la publicación ⯆
+                </div>
 
-                <p id="modal-contenido-texto" class="modal-pub-text"></p>
+                <div id="acordeon-contenido" class="modal-acordeon-content">
+                    <h2 id="modal-titulo" class="modal-pub-title"></h2>
 
-                <p class="modal-pub-meta">
-                    <strong>Autor:</strong> @<span id="modal-autor"></span>
-                </p>
+                    <p id="modal-contenido-texto" class="modal-pub-text"></p>
 
-                <p class="modal-pub-meta">
-                    <strong>Fecha:</strong> <span id="modal-fecha"></span>
-                </p>
+                    <p class="modal-pub-meta">
+                        <strong>Autor:</strong> @<span id="modal-autor"></span>
+                    </p>
 
-                <p class="modal-pub-meta">
-                    <strong>Visitas:</strong> <span id="modal-visitas"></span>
-                </p>
+                    <p class="modal-pub-meta">
+                        <strong>Fecha:</strong> <span id="modal-fecha"></span>
+                    </p>
 
-                <div class="modal-pub-tags">
-                    <strong>Etiquetas:</strong>
-                    <span id="modal-etiquetas"></span>
+                    <p class="modal-pub-meta">
+                        <strong>Visitas:</strong> <span id="modal-visitas"></span>
+                    </p>
+
+                    <div class="modal-pub-tags">
+                        <strong>Etiquetas:</strong>
+                        <span id="modal-etiquetas"></span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- DERECHA -->
-        <div class="modal-pub-right">
+            <!-- BLOQUE INFERIOR (COMENTARIOS + FORMULARIO) -->
+            <div class="modal-pub-bottom">
 
-            <h3 class="modal-pub-subtitle">Comentarios</h3>
+                <h3 class="modal-pub-subtitle">Comentarios</h3>
 
-            <div class="modal-pub-comments" id="modal-comentarios"></div>
+                <div class="modal-pub-comments-wrapper">
+                    <div class="modal-pub-comments" id="modal-comentarios"></div>
+                </div>
 
-            <form id="modal-form" method="POST" class="modal-pub-form vapor-form">
-                <textarea name="texto" required class="modal-pub-textarea"></textarea>
-                <button type="submit" class="btn btn-primary">Enviar</button>
-            </form>
+                <!-- FORMULARIO FIJO EN MÓVIL -->
+                <form id="modal-form" method="POST" class="modal-pub-form vapor-form modal-form-fixed">
+                    <textarea name="texto" required class="modal-pub-textarea"></textarea>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </form>
+
+            </div>
 
         </div>
     </div>
@@ -83,7 +90,6 @@
         const res = await fetch("/publicaciones/" + id);
         const data = await res.json();
 
-        // IMAGEN Y TEXTO
         document.getElementById("modal-img").src = data.imagen;
         document.getElementById("modal-titulo").textContent = data.titulo;
         document.getElementById("modal-contenido-texto").textContent = data.contenido;
@@ -92,70 +98,45 @@
         document.getElementById("modal-fecha").textContent = new Date(data.fecha).toLocaleString();
         document.getElementById("modal-visitas").textContent = data.visitas;
 
-        // ETIQUETAS
         let etiquetasHTML = "";
-        data.etiquetas.forEach(function (e) {
-            etiquetasHTML += '<span class="tag">#' + e + '</span>';
-        });
+        data.etiquetas.forEach(e => etiquetasHTML += `<span class="tag">#${e}</span>`);
         document.getElementById("modal-etiquetas").innerHTML = etiquetasHTML;
 
-        // ============================
-        // COMENTARIOS
-        // ============================
         const contComentarios = document.getElementById("modal-comentarios");
 
         if (data.comentarios.length === 0) {
             contComentarios.innerHTML = "<p class='no-comments'>No hay comentarios.</p>";
         } else {
-            let html = "";
-            data.comentarios.forEach(function (c) {
-                html += '<div class="modal-comment">';
-
-                // NOMBRE CLICABLE → PERFIL PÚBLICO
-                html += '<strong><a class="usuario-link" href="/perfil-publico/' + c.id_usuario + '">@' + c.autor + '</a></strong>';
-
-                // BOTÓN SEGUIR EN COMENTARIOS
-                if (!c.esAutor && !c.yoSoyEl) {
-                    if (!c.yoLeSigo) {
-                        html += '<button class="btn-seguir-small comentario-seguir" data-user="' + c.id_usuario + '">Seguir</button>';
-                    } else {
-                        html += '<button class="btn-siguiendo-small comentario-siguiendo" data-user="' + c.id_usuario + '">Siguiendo</button>';
-                    }
-                }
-
-                html += '<br>' + c.texto + '</div>';
-            });
-            contComentarios.innerHTML = html;
+            contComentarios.innerHTML = data.comentarios.map(c => `
+                <div class="modal-comment">
+                    <strong><a class="usuario-link" href="/perfil-publico/${c.id_usuario}">@${c.autor}</a></strong>
+                    ${(!c.esAutor && !c.yoSoyEl) ? (
+                    c.yoLeSigo
+                        ? `<button class="btn-siguiendo-small comentario-siguiendo" data-user="${c.id_usuario}">Siguiendo</button>`
+                        : `<button class="btn-seguir-small comentario-seguir" data-user="${c.id_usuario}">Seguir</button>`
+                ) : ""}
+                    <br>${c.texto}
+                </div>
+            `).join("");
         }
 
-
-
-        // FORMULARIO
         document.getElementById("modal-form").action = "/comentarios/" + id;
 
-        // ============================
-        // ACCIONES (EDITAR / ELIMINAR / SEGUIR)
-        // ============================
         const actions = document.getElementById("modal-actions");
 
         if (data.propietario) {
-            actions.innerHTML =
-                '<button class="btn-edit-small" onclick="abrirModalEditar(' + data.id + ')">Editar</button>' +
-                '<form action="/publicaciones/' + data.id + '/eliminar" method="POST" style="display:inline-block;" onsubmit="return confirm(\'¿Seguro que quieres eliminar esta publicación?\');">' +
-                '<button type="submit" class="btn-delete-small">Eliminar</button>' +
-                '</form>';
+            actions.innerHTML = `
+                <button class="btn-edit-small" onclick="abrirModalEditar(${data.id})">Editar</button>
+                <form action="/publicaciones/${data.id}/eliminar" method="POST" style="display:inline-block;" onsubmit="return confirm('¿Seguro que quieres eliminar esta publicación?');">
+                    <button type="submit" class="btn-delete-small">Eliminar</button>
+                </form>
+            `;
         } else {
-            // BOTÓN SEGUIR EN EL MODAL
-            if (!data.yoLeSigo) {
-                actions.innerHTML =
-                    '<button class="btn-seguir-small modal-seguir" data-user="' + data.id_usuario + '">Seguir</button>';
-            } else {
-                actions.innerHTML =
-                    '<button class="btn-siguiendo-small modal-siguiendo" data-user="' + data.id_usuario + '">Siguiendo</button>';
-            }
+            actions.innerHTML = data.yoLeSigo
+                ? `<button class="btn-siguiendo-small modal-siguiendo" data-user="${data.id_usuario}">Siguiendo</button>`
+                : `<button class="btn-seguir-small modal-seguir" data-user="${data.id_usuario}">Seguir</button>`;
         }
 
-        // ACTIVAR EVENTOS DE SEGUIR
         activarBotonesSeguir();
     }
 
@@ -163,15 +144,15 @@
     // SEGUIR / DEJAR DE SEGUIR
     // ============================
     function activarBotonesSeguir() {
-        // SEGUIR
-        document.querySelectorAll(".modal-seguir, .comentario-seguir").forEach(function (btn) {
-            btn.addEventListener("click", function (e) {
+
+        document.querySelectorAll(".modal-seguir, .comentario-seguir").forEach(btn => {
+            btn.addEventListener("click", e => {
                 e.stopPropagation();
                 const id = btn.dataset.user;
 
                 fetch("/seguir/" + id, { method: "POST" })
                     .then(r => r.json())
-                    .then(function (data) {
+                    .then(data => {
                         if (data.ok) {
                             btn.classList.remove("btn-seguir-small");
                             btn.classList.add("btn-siguiendo-small");
@@ -181,22 +162,17 @@
             });
         });
 
-        // DEJAR DE SEGUIR
-        document.querySelectorAll(".modal-siguiendo, .comentario-siguiendo").forEach(function (btn) {
-            btn.addEventListener("mouseenter", function () {
-                btn.textContent = "Dejar de seguir";
-            });
-            btn.addEventListener("mouseleave", function () {
-                btn.textContent = "Siguiendo";
-            });
+        document.querySelectorAll(".modal-siguiendo, .comentario-siguiendo").forEach(btn => {
+            btn.addEventListener("mouseenter", () => btn.textContent = "Dejar de seguir");
+            btn.addEventListener("mouseleave", () => btn.textContent = "Siguiendo");
 
-            btn.addEventListener("click", function (e) {
+            btn.addEventListener("click", e => {
                 e.stopPropagation();
                 const id = btn.dataset.user;
 
                 fetch("/dejar-de-seguir/" + id, { method: "POST" })
                     .then(r => r.json())
-                    .then(function (data) {
+                    .then(data => {
                         if (data.ok) {
                             btn.classList.remove("btn-siguiendo-small");
                             btn.classList.add("btn-seguir-small");
@@ -206,4 +182,36 @@
             });
         });
     }
+
+    
+        document.getElementById("modal-form").addEventListener("submit", async function(e) {
+            e.preventDefault(); // ❌ evita que se cierre el modal
+
+        const form = e.target;
+        const action = form.action;
+        const texto = form.querySelector("textarea").value;
+
+        const res = await fetch(action, {
+            method: "POST",
+        headers: {"Content-Type": "application/json" },
+        body: JSON.stringify({texto})
+    });
+
+        const data = await res.json();
+
+        if (data.ok) {
+        // 🔥 Recargar comentarios sin cerrar el modal
+        const id = action.split("/").pop();
+        await cargarPublicacion(id);
+
+        // limpiar textarea
+        form.querySelector("textarea").value = "";
+
+        // bajar scroll al último comentario
+        const cont = document.getElementById("modal-comentarios");
+        cont.scrollTop = cont.scrollHeight;
+    }
+});
+
+
 </script>
