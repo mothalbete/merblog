@@ -16,6 +16,7 @@ model comentario {
   fecha_edicion    DateTime?   @db.Timestamp(6)
   moderado         Boolean     @default(false)
   puntuacion       Int?
+
   publicacion      publicacion @relation(fields: [id_publicacion], references: [id_publicacion], onDelete: Cascade, onUpdate: NoAction)
   usuarios         usuarios    @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
 
@@ -32,10 +33,13 @@ model publicacion {
   fecha_actualizacion   DateTime                @default(now()) @db.Timestamp(6)
   estado                String                  @db.VarChar(50)
   numero_visitas        Int                     @default(0)
+
   comentario            comentario[]
   usuarios              usuarios                @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
   publicacion_etiquetas publicacion_etiquetas[]
   imagen                String?                 @db.VarChar(255)
+
+  likes                 likes[]                 // 👈 RELACIÓN OPUESTA A LIKES
 
   @@index([id_usuario], map: "idx_publicacion_autor")
 }
@@ -44,6 +48,7 @@ model publicacion_etiquetas {
   id_etiqueta    Int         @id @default(autoincrement())
   id_publicacion Int
   etiqueta       String      @db.VarChar(100)
+
   publicacion    publicacion @relation(fields: [id_publicacion], references: [id_publicacion], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([id_publicacion], map: "idx_etiquetas_publicacion")
@@ -53,6 +58,7 @@ model usuario_telefonos {
   id_telefono Int      @id @default(autoincrement())
   id_usuario  Int
   telefono    String   @db.VarChar(30)
+
   usuarios    usuarios @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
 }
 
@@ -64,6 +70,7 @@ model usuarios {
   fecha_registro    DateTime            @default(now()) @db.Timestamp(6)
   activo            Boolean             @default(true)
   biografia         String?
+
   comentario        comentario[]
   publicacion       publicacion[]
   usuario_telefonos usuario_telefonos[]
@@ -71,6 +78,8 @@ model usuarios {
 
   seguidores        seguidores[] @relation("Seguido")
   siguiendo         seguidores[] @relation("Seguidor")
+
+  likes             likes[]             // 👈 RELACIÓN OPUESTA A LIKES
 }
 
 model seguidores {
@@ -83,4 +92,16 @@ model seguidores {
 
   @@id([id_seguidor, id_seguido])
   @@index([id_seguido])
+}
+
+model likes {
+  id_usuario     Int
+  id_publicacion Int
+  fecha          DateTime @default(now())
+
+  usuario        usuarios    @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  publicacion    publicacion @relation(fields: [id_publicacion], references: [id_publicacion], onDelete: Cascade)
+
+  @@id([id_usuario, id_publicacion])
+  @@index([id_publicacion])
 }

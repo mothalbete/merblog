@@ -54,10 +54,11 @@
     overflow: visible;
 }
 
+/* 🔥 Imagen limitada en PC para que no tape el acordeón */
 .modal-pub-img {
     width: 100%;
-    height: auto;
-    object-fit: contain;
+    max-height: 55vh;
+    object-fit: cover;
     display: block;
 }
 
@@ -147,9 +148,9 @@
         object-fit: cover;
     }
 
-    /* 🔥 Acordeón scrolleable con altura reducida */
+    /* 🔥 Acordeón scrolleable con altura reducida en móvil */
     .modal-acordeon-content.abierto {
-        max-height: 15vh; /* 🔥 altura reducida */
+        max-height: 15vh;
         overflow-y: auto;
         padding: 15px;
     }
@@ -195,5 +196,22 @@
         flex: 1;
         resize: none;
         height: 45px;
+    }
+}
+
+/* ============================================================
+   PC — Acordeón scrolleable
+   ============================================================ */
+@media (min-width: 769px) {
+
+    /* 🔥 Acordeón con scroll en PC */
+    .modal-acordeon-content.abierto {
+        max-height: 25vh;
+        overflow-y: auto;
+    }
+
+    /* 🔥 Asegura scroll correcto en comentarios */
+    .modal-pub-comments-wrapper {
+        min-height: 0;
     }
 }
