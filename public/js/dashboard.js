@@ -243,6 +243,7 @@ function activarTarjetasDashboard() {
             if (e.target.classList.contains("btn-siguiendo-small")) return;
             if (e.target.classList.contains("edit-btn")) return;
             if (e.target.classList.contains("usuario-link")) return;
+            if (e.target.classList.contains("like-btn")) return; // ⭐ EVITAR QUE EL LIKE ABRA EL MODAL
 
             const id = card.dataset.id;
             cargarPublicacion(id);
@@ -284,6 +285,40 @@ function activarFiltros() {
 activarFiltros();
 
 
+// ===============================
+// LIKE / UNLIKE
+// ===============================
+
+function activarLikes() {
+    document.querySelectorAll(".like-btn").forEach(btn => {
+        btn.onclick = async e => {
+            e.stopPropagation();
+
+            const id = btn.dataset.id;
+            const liked = btn.classList.contains("liked");
+
+            const url = liked ? `/unlike/${id}` : `/like/${id}`;
+
+            const res = await fetch(url, { method: "POST" });
+            const data = await res.json();
+
+            if (data.ok) {
+                const countEl = document.getElementById(`likes-${id}`);
+                let count = parseInt(countEl.textContent);
+
+                if (liked) {
+                    btn.classList.remove("liked");
+                    countEl.textContent = count - 1;
+                } else {
+                    btn.classList.add("liked");
+                    countEl.textContent = count + 1;
+                }
+            }
+        };
+    });
+}
+
+activarLikes();
 
 
 // ===============================

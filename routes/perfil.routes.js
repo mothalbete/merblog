@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 
 const { requireLogin } = require("../middleware/auth");
-const { editarPerfil } = require("../controllers/perfil.controller");
+const { editarPerfil, obtenerPerfilPublicoData } = require("../controllers/perfil.controller");
 
-// 👉 IMPORTANTE: Prisma estaba faltando
+// ⭐ NECESARIO PARA /usuario-publico/:id
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
 router.post("/perfil/editar", requireLogin, editarPerfil);
 
 // ===============================
-// PERFIL PÚBLICO (JSON)
+// PERFIL PÚBLICO (JSON ANTIGUO)
 // ===============================
 router.get("/usuario-publico/:id", requireLogin, async (req, res) => {
     try {
@@ -67,6 +67,11 @@ router.get("/usuario-publico/:id", requireLogin, async (req, res) => {
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
+
+// ===============================
+// PERFIL PÚBLICO (JSON PARA MODAL)
+// ===============================
+router.get("/perfil-publico/:id/data", requireLogin, obtenerPerfilPublicoData);
 
 // ===============================
 // PERFIL PÚBLICO (PÁGINA HTML)

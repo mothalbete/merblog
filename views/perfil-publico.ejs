@@ -70,14 +70,55 @@
 </main>
 
 <!-- =============================== -->
-<!-- MODAL DE PUBLICACIÓN (INCLUIDO) -->
+<!-- SCRIPT SOLO PARA SEGUIR / DEJAR DE SEGUIR -->
 <!-- =============================== -->
-<%- include("partials/modal-publicacion") %>
+<script>
+    function activarBotonesSeguirPerfil() {
+        // SEGUIR
+        document.querySelectorAll(".seguir-btn").forEach(btn => {
+            btn.onclick = async e => {
+                e.stopPropagation();
+                const id = btn.dataset.user;
 
-<!-- =============================== -->
-<!-- SCRIPTS NECESARIOS -->
-<!-- =============================== -->
-<script src="/js/dashboard.js"></script>
+                const res = await fetch(`/seguir/${id}`, { method: "POST" });
+                const data = await res.json();
+
+                if (data.ok) {
+                    btn.classList.remove("btn-seguir-small", "seguir-btn");
+                    btn.classList.add("btn-siguiendo-small", "siguiendo-btn");
+                    btn.textContent = "Siguiendo";
+                    activarBotonesSeguirPerfil();
+                }
+            };
+        });
+
+        // SIGUIENDO
+        document.querySelectorAll(".siguiendo-btn").forEach(btn => {
+            btn.onmouseenter = () => btn.textContent = "Dejar de seguir";
+            btn.onmouseleave = () => btn.textContent = "Siguiendo";
+
+            btn.onclick = async e => {
+                e.stopPropagation();
+                const id = btn.dataset.user;
+
+                const res = await fetch(`/dejar-de-seguir/${id}`, { method: "POST" });
+                const data = await res.json();
+
+                if (data.ok) {
+                    btn.onmouseenter = null;
+                    btn.onmouseleave = null;
+
+                    btn.classList.remove("btn-siguiendo-small", "siguiendo-btn");
+                    btn.classList.add("btn-seguir-small", "seguir-btn");
+                    btn.textContent = "Seguir";
+                    activarBotonesSeguirPerfil();
+                }
+            };
+        });
+    }
+
+    activarBotonesSeguirPerfil();
+</script>
 
 </body>
 </html>

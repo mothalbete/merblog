@@ -14,6 +14,7 @@ const publicacionesRoutes = require("./routes/publicaciones.routes");
 const comentariosRoutes = require("./routes/comentarios.routes");
 const perfilRoutes = require("./routes/perfil.routes");
 const seguidoresRoutes = require("./routes/seguidores.routes");
+const likesRoutes = require("./routes/likes.routes");   // ⭐ AÑADIDO
 
 // ===============================
 // CONFIGURACIÓN EJS
@@ -46,6 +47,7 @@ app.use(publicacionesRoutes);
 app.use(comentariosRoutes);
 app.use(perfilRoutes);
 app.use(seguidoresRoutes);
+app.use(likesRoutes);   // ⭐ AÑADIDO
 
 // ===============================
 // SERVIDOR

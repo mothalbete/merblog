@@ -17,14 +17,48 @@ exports.mostrarDashboard = async (req, res) => {
             seguidores: true   // 👈 NECESARIO PARA YA-SIGO
           }
         },
-        publicacion_etiquetas: true
+        publicacion_etiquetas: true,
+
+        // ⭐ AÑADIMOS LOS LIKES
+        likes: {
+          select: { id_usuario: true }
+        }
       }
     });
 
+    // ⭐ PROCESAR LIKES PARA CADA PUBLICACIÓN
+    const publicacionesProcesadas = publicaciones.map(pub => {
+      const likesCount = pub.likes.length;
+      const yaLike = pub.likes.some(l => l.id_usuario === userId);
+
+      return {
+        ...pub,
+        likesCount,
+        yaLike
+      };
+    });
+
     // Publicaciones del usuario
-    const misPublicaciones = await prisma.publicacion.findMany({
+    const misPublicacionesRaw = await prisma.publicacion.findMany({
       where: { id_usuario: userId },
-      orderBy: { fecha_publicacion: "desc" }
+      orderBy: { fecha_publicacion: "desc" },
+      include: {
+        likes: {
+          select: { id_usuario: true }
+        }
+      }
+    });
+
+    // ⭐ PROCESAR LIKES TAMBIÉN EN MIS PUBLICACIONES
+    const misPublicaciones = misPublicacionesRaw.map(pub => {
+      const likesCount = pub.likes.length;
+      const yaLike = pub.likes.some(l => l.id_usuario === userId);
+
+      return {
+        ...pub,
+        likesCount,
+        yaLike
+      };
     });
 
     // Datos del usuario
@@ -66,8 +100,8 @@ exports.mostrarDashboard = async (req, res) => {
         email: userData.email,
         biografia: userData.biografia
       },
-      publicaciones,
-      misPublicaciones,
+      publicaciones: publicacionesProcesadas,   // ⭐ YA CON LIKES
+      misPublicaciones,                        // ⭐ YA CON LIKES
       fechasDisponibles,
       etiquetasDisponibles,
       seguidoresCount,

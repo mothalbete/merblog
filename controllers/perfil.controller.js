@@ -38,3 +38,55 @@ exports.editarPerfil = async (req, res) => {
     });
   }
 };
+
+// ===============================
+// PERFIL PÚBLICO → JSON PARA MODAL
+// ===============================
+exports.obtenerPerfilPublicoData = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const yo = req.session.user.id;
+
+        const usuario = await prisma.usuarios.findUnique({
+            where: { id_usuario: id },
+            select: {
+                nombre: true,
+                biografia: true,
+                seguidores: true,
+                siguiendo: true,
+                publicacion: {
+                    orderBy: { fecha_publicacion: "desc" },
+                    include: {
+                        likes: { select: { id_usuario: true } }
+                    }
+                }
+            }
+        });
+
+        if (!usuario) {
+            return res.json({ ok: false });
+        }
+
+        // Procesar publicaciones con likes
+        const publicaciones = usuario.publicacion.map(pub => ({
+            ...pub,
+            likesCount: pub.likes.length,
+            yaLike: pub.likes.some(l => l.id_usuario === yo)
+        }));
+
+        res.json({
+            ok: true,
+            nombre: usuario.nombre,
+            biografia: usuario.biografia,
+            seguidores: usuario.seguidores.length,
+            seguidos: usuario.siguiendo.length,
+            esYo: yo === id,
+            yoLeSigo: usuario.seguidores.some(s => s.id_seguidor === yo),
+            publicaciones
+        });
+
+    } catch (err) {
+        console.error("ERROR PERFIL PUBLICO DATA:", err);
+        res.json({ ok: false });
+    }
+};

@@ -454,6 +454,28 @@
     to { opacity: 1; transform: scale(1); }
 }
 
+.pub-like-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.like-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    transition: transform 0.2s;
+}
+
+.like-btn.liked {
+    color: red;
+}
+
+.like-btn:hover {
+    transform: scale(1.2);
+}
+
 /* ============================================================
    MODO MÓVIL — TÍTULO SIEMPRE VISIBLE EN LAS TARJETAS
    ============================================================ */

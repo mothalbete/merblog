@@ -87,6 +87,20 @@
 
             <div class="pub-card-author">
 
+                <!-- ❤️ LIKE (IZQUIERDA) -->
+                <div class="like-container">
+                    <button 
+                        class="like-btn <%= pub.yaLike ? 'liked' : '' %>" 
+                        data-id="<%= pub.id_publicacion %>"
+                        onclick="event.stopPropagation()">
+                        ❤️
+                    </button>
+
+                    <span class="like-count" id="likes-<%= pub.id_publicacion %>">
+                        <%= pub.likesCount %>
+                    </span>
+                </div>
+
                 <!-- NOMBRE DEL AUTOR → ABRE PERFIL PÚBLICO -->
                 <a class="usuario-link" href="/perfil-publico/<%= pub.id_usuario %>">
                     @<%= pub.usuarios.nombre %>
@@ -142,6 +156,7 @@
             if (e.target.classList.contains('siguiendo-btn')) return;
             if (e.target.classList.contains('edit-btn')) return;
             if (e.target.classList.contains('usuario-link')) return;
+            if (e.target.classList.contains('like-btn')) return; // ⭐ NO ABRIR MODAL AL DAR LIKE
 
             cargarPublicacion(card.dataset.id);
             abrirModal();

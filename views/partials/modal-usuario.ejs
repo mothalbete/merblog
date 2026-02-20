@@ -20,3 +20,124 @@
 
     </div>
 </div>
+
+<script>
+    // ============================
+    // CERRAR MODAL
+    // ============================
+    document.getElementById("modal-usuario-close").onclick = () => {
+        document.getElementById("modal-usuario-bg").style.display = "none";
+    };
+
+    window.addEventListener("click", e => {
+        if (e.target === document.getElementById("modal-usuario-bg")) {
+            document.getElementById("modal-usuario-bg").style.display = "none";
+        }
+    });
+
+    // ============================
+    // CARGAR USUARIO EN MODAL
+    // ============================
+    async function cargarUsuario(id) {
+        const res = await fetch("/perfil-publico/" + id + "/data");
+        const data = await res.json();
+
+        document.getElementById("usuario-nombre").textContent = "@" + data.nombre;
+        document.getElementById("usuario-bio").textContent = data.biografia || "Sin biografía";
+
+        document.getElementById("usuario-seguidores").textContent = "Seguidores: " + data.seguidores;
+        document.getElementById("usuario-seguidos").textContent = "Siguiendo: " + data.seguidos;
+
+        // Botón seguir / siguiendo
+        const contBtn = document.getElementById("usuario-btn-container");
+
+        if (!data.esYo) {
+            contBtn.innerHTML = data.yoLeSigo
+                ? `<button class="btn-siguiendo-small modal-siguiendo" data-user="${id}">Siguiendo</button>`
+                : `<button class="btn-seguir-small modal-seguir" data-user="${id}">Seguir</button>`;
+        } else {
+            contBtn.innerHTML = "";
+        }
+
+        // ============================
+        // PUBLICACIONES DEL USUARIO
+        // ============================
+        const contPub = document.getElementById("usuario-publicaciones");
+        contPub.innerHTML = "";
+
+        data.publicaciones.forEach(pub => {
+            contPub.innerHTML += `
+                <div class="usuario-pub-card" data-id="${pub.id_publicacion}">
+                    <img src="${pub.imagen}" class="usuario-pub-img">
+
+                    <div class="usuario-pub-info">
+                        <span class="usuario-pub-title">${pub.titulo}</span>
+
+                        <div class="usuario-like-container">
+                            <button 
+                                class="like-btn ${pub.yaLike ? "liked" : ""}" 
+                                data-id="${pub.id_publicacion}"
+                                onclick="event.stopPropagation()">
+                                ❤️
+                            </button>
+                            <span class="like-count" id="likes-${pub.id_publicacion}">
+                                ${pub.likesCount}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        activarBotonesSeguir();
+        activarLikesUsuario();
+        activarTarjetasUsuario();
+    }
+
+    // ============================
+    // ABRIR PUBLICACIÓN DESDE MODAL USUARIO
+    // ============================
+    function activarTarjetasUsuario() {
+        document.querySelectorAll(".usuario-pub-card").forEach(card => {
+            card.onclick = e => {
+                if (e.target.classList.contains("like-btn")) return;
+
+                const id = card.dataset.id;
+                cargarPublicacion(id);
+                abrirModal();
+            };
+        });
+    }
+
+    // ============================
+    // LIKE / UNLIKE EN MODAL USUARIO
+    // ============================
+    function activarLikesUsuario() {
+        document.querySelectorAll(".usuario-like-container .like-btn").forEach(btn => {
+            btn.onclick = async e => {
+                e.stopPropagation();
+
+                const id = btn.dataset.id;
+                const liked = btn.classList.contains("liked");
+
+                const url = liked ? `/unlike/${id}` : `/like/${id}`;
+
+                const res = await fetch(url, { method: "POST" });
+                const data = await res.json();
+
+                if (data.ok) {
+                    const countEl = document.getElementById(`likes-${id}`);
+                    let count = parseInt(countEl.textContent);
+
+                    if (liked) {
+                        btn.classList.remove("liked");
+                        countEl.textContent = count - 1;
+                    } else {
+                        btn.classList.add("liked");
+                        countEl.textContent = count + 1;
+                    }
+                }
+            };
+        });
+    }
+</script>

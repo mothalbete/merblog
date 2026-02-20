@@ -5,15 +5,19 @@
 
         <div class="modal-pub-close" onclick="cerrarModal()">✖</div>
 
-        <!-- CONTENEDOR GENERAL (NECESARIO PARA MÓVIL) -->
         <div class="modal-pub-inner">
 
-            <!-- BLOQUE SUPERIOR (IMAGEN + ACORDEÓN) -->
             <div class="modal-pub-top">
 
                 <img id="modal-img" src="" alt="Imagen" class="modal-pub-img">
 
                 <div id="modal-actions" class="modal-actions"></div>
+
+                <!-- LIKE -->
+                <div class="modal-like-container">
+                    <button id="modal-like-btn" class="like-btn" onclick="event.stopPropagation()">❤️</button>
+                    <span id="modal-like-count" class="like-count">0</span>
+                </div>
 
                 <div class="modal-acordeon" onclick="toggleAcordeon()">
                     Información de la publicación ⯆
@@ -43,7 +47,6 @@
                 </div>
             </div>
 
-            <!-- BLOQUE INFERIOR (COMENTARIOS + FORMULARIO) -->
             <div class="modal-pub-bottom">
 
                 <h3 class="modal-pub-subtitle">Comentarios</h3>
@@ -52,7 +55,6 @@
                     <div class="modal-pub-comments" id="modal-comentarios"></div>
                 </div>
 
-                <!-- FORMULARIO FIJO EN MÓVIL -->
                 <form id="modal-form" method="POST" class="modal-pub-form vapor-form modal-form-fixed">
                     <textarea name="texto" required class="modal-pub-textarea"></textarea>
                     <button type="submit" class="btn btn-primary">Enviar</button>
@@ -93,28 +95,44 @@
         document.getElementById("modal-img").src = data.imagen;
         document.getElementById("modal-titulo").textContent = data.titulo;
         document.getElementById("modal-contenido-texto").textContent = data.contenido;
+
         document.getElementById("modal-autor").innerHTML =
             `<a class="usuario-link" href="/perfil-publico/${data.id_usuario}">@${data.autor}</a>`;
+
         document.getElementById("modal-fecha").textContent = new Date(data.fecha).toLocaleString();
         document.getElementById("modal-visitas").textContent = data.visitas;
 
-        let etiquetasHTML = "";
-        data.etiquetas.forEach(e => etiquetasHTML += `<span class="tag">#${e}</span>`);
-        document.getElementById("modal-etiquetas").innerHTML = etiquetasHTML;
+        // LIKE
+        const likeBtn = document.getElementById("modal-like-btn");
+        const likeCount = document.getElementById("modal-like-count");
 
+        likeBtn.dataset.id = data.id; // ⭐ AHORA SIEMPRE TIENE ID
+        likeCount.textContent = data.likesCount ?? 0;
+
+        if (data.yaLike) {
+            likeBtn.classList.add("liked");
+        } else {
+            likeBtn.classList.remove("liked");
+        }
+
+        // ETIQUETAS
+        document.getElementById("modal-etiquetas").innerHTML =
+            data.etiquetas.map(e => `<span class="tag">#${e}</span>`).join("");
+
+        // COMENTARIOS
         const contComentarios = document.getElementById("modal-comentarios");
 
-        if (data.comentarios.length === 0) {
+        if (!data.comentarios.length) {
             contComentarios.innerHTML = "<p class='no-comments'>No hay comentarios.</p>";
         } else {
             contComentarios.innerHTML = data.comentarios.map(c => `
                 <div class="modal-comment">
                     <strong><a class="usuario-link" href="/perfil-publico/${c.id_usuario}">@${c.autor}</a></strong>
                     ${(!c.esAutor && !c.yoSoyEl) ? (
-                    c.yoLeSigo
-                        ? `<button class="btn-siguiendo-small comentario-siguiendo" data-user="${c.id_usuario}">Siguiendo</button>`
-                        : `<button class="btn-seguir-small comentario-seguir" data-user="${c.id_usuario}">Seguir</button>`
-                ) : ""}
+                        c.yoLeSigo
+                            ? `<button class="btn-siguiendo-small comentario-siguiendo" data-user="${c.id_usuario}">Siguiendo</button>`
+                            : `<button class="btn-seguir-small comentario-seguir" data-user="${c.id_usuario}">Seguir</button>`
+                    ) : ""}
                     <br>${c.texto}
                 </div>
             `).join("");
@@ -122,6 +140,7 @@
 
         document.getElementById("modal-form").action = "/comentarios/" + id;
 
+        // ACCIONES
         const actions = document.getElementById("modal-actions");
 
         if (data.propietario) {
@@ -138,54 +157,86 @@
         }
 
         activarBotonesSeguir();
+        activarLikeModal(); // ⭐ SE REACTIVA TRAS CADA CARGA
+    }
+
+    // ============================
+    // LIKE EN EL MODAL
+    // ============================
+    function activarLikeModal() {
+        const btn = document.getElementById("modal-like-btn");
+        const countEl = document.getElementById("modal-like-count");
+
+        btn.onclick = async e => {
+            e.stopPropagation(); // ⭐ EVITA CIERRE DEL MODAL
+
+            const id = btn.dataset.id;
+            const liked = btn.classList.contains("liked");
+
+            const url = liked ? `/unlike/${id}` : `/like/${id}`;
+
+            const res = await fetch(url, { method: "POST" });
+            const data = await res.json();
+
+            if (data.ok) {
+                let count = parseInt(countEl.textContent);
+
+                if (liked) {
+                    btn.classList.remove("liked");
+                    countEl.textContent = count - 1;
+                } else {
+                    btn.classList.add("liked");
+                    countEl.textContent = count + 1;
+                }
+            }
+        };
     }
 
     // ============================
     // SEGUIR / DEJAR DE SEGUIR
     // ============================
     function activarBotonesSeguir() {
-
         document.querySelectorAll(".modal-seguir, .comentario-seguir").forEach(btn => {
-            btn.addEventListener("click", e => {
+            btn.onclick = async e => {
                 e.stopPropagation();
                 const id = btn.dataset.user;
 
-                fetch("/seguir/" + id, { method: "POST" })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.ok) {
-                            btn.classList.remove("btn-seguir-small");
-                            btn.classList.add("btn-siguiendo-small");
-                            btn.textContent = "Siguiendo";
-                        }
-                    });
-            });
+                const res = await fetch("/seguir/" + id, { method: "POST" });
+                const data = await res.json();
+
+                if (data.ok) {
+                    btn.classList.remove("btn-seguir-small");
+                    btn.classList.add("btn-siguiendo-small");
+                    btn.textContent = "Siguiendo";
+                }
+            };
         });
 
         document.querySelectorAll(".modal-siguiendo, .comentario-siguiendo").forEach(btn => {
-            btn.addEventListener("mouseenter", () => btn.textContent = "Dejar de seguir");
-            btn.addEventListener("mouseleave", () => btn.textContent = "Siguiendo");
+            btn.onmouseenter = () => btn.textContent = "Dejar de seguir";
+            btn.onmouseleave = () => btn.textContent = "Siguiendo";
 
-            btn.addEventListener("click", e => {
+            btn.onclick = async e => {
                 e.stopPropagation();
                 const id = btn.dataset.user;
 
-                fetch("/dejar-de-seguir/" + id, { method: "POST" })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.ok) {
-                            btn.classList.remove("btn-siguiendo-small");
-                            btn.classList.add("btn-seguir-small");
-                            btn.textContent = "Seguir";
-                        }
-                    });
-            });
+                const res = await fetch("/dejar-de-seguir/" + id, { method: "POST" });
+                const data = await res.json();
+
+                if (data.ok) {
+                    btn.classList.remove("btn-siguiendo-small");
+                    btn.classList.add("btn-seguir-small");
+                    btn.textContent = "Seguir";
+                }
+            };
         });
     }
 
-    
-        document.getElementById("modal-form").addEventListener("submit", async function(e) {
-            e.preventDefault(); // ❌ evita que se cierre el modal
+    // ============================
+    // ENVIAR COMENTARIO SIN CERRAR MODAL
+    // ============================
+    document.getElementById("modal-form").addEventListener("submit", async function(e) {
+        e.preventDefault();
 
         const form = e.target;
         const action = form.action;
@@ -193,25 +244,20 @@
 
         const res = await fetch(action, {
             method: "POST",
-        headers: {"Content-Type": "application/json" },
-        body: JSON.stringify({texto})
-    });
+            headers: {"Content-Type": "application/json" },
+            body: JSON.stringify({texto})
+        });
 
         const data = await res.json();
 
         if (data.ok) {
-        // 🔥 Recargar comentarios sin cerrar el modal
-        const id = action.split("/").pop();
-        await cargarPublicacion(id);
+            const id = action.split("/").pop();
+            await cargarPublicacion(id); // ⭐ RECARGA Y REACTIVA LIKE
 
-        // limpiar textarea
-        form.querySelector("textarea").value = "";
+            form.querySelector("textarea").value = "";
 
-        // bajar scroll al último comentario
-        const cont = document.getElementById("modal-comentarios");
-        cont.scrollTop = cont.scrollHeight;
-    }
-});
-
-
+            const cont = document.getElementById("modal-comentarios");
+            cont.scrollTop = cont.scrollHeight;
+        }
+    });
 </script>
